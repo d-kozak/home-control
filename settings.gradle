@@ -8,4 +8,5 @@
  */
 
 rootProject.name = 'home-control'
-include "home-bus","home-server"
+include "bus","server","sensors"
+
