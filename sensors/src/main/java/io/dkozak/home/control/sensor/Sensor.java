@@ -1,6 +1,10 @@
 package io.dkozak.home.control.sensor;
 
+import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
+import io.dkozak.home.control.sensor.firebase.SensorType;
 import lombok.Data;
+
+import java.util.Objects;
 
 @Data
 public abstract class Sensor {
@@ -18,6 +22,22 @@ public abstract class Sensor {
         this.description = description;
         this.sensorType = new SensorType(sensorClass, this.getClass()
                                                           .getSimpleName());
+    }
+
+    public abstract FirebaseSensor asFirebaseSensor();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Sensor)) return false;
+        Sensor sensor = (Sensor) o;
+        return sensorClass == sensor.sensorClass &&
+                identifier == sensor.identifier;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sensorClass, identifier);
     }
 
     public String toString() {

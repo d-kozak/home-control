@@ -1,0 +1,23 @@
+package io.dkozak.home.control.sensor.firebase;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.Comparator;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class SensorType implements Serializable, Comparable<SensorType> {
+    private int id;
+    private String name;
+
+    @Override
+    public int compareTo(SensorType other) {
+        return Comparator.comparingInt(SensorType::getId)
+                         .compare(this, other);
+    }
+}

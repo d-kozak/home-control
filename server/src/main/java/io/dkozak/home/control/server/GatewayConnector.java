@@ -1,6 +1,7 @@
 package io.dkozak.home.control.server;
 
-import io.dkozak.home.control.sensor.SensorType;
+import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
+import io.dkozak.home.control.sensor.firebase.SensorType;
 import io.dkozak.home.control.server.firebase.FirebaseConnector;
 import io.dkozak.home.control.utils.Log;
 
@@ -13,7 +14,7 @@ public class GatewayConnector {
     public static void connect(FirebaseConnector firebase) {
         try (var serverSocket = new ServerSocket(ServerConfig.SERVER_PORT);
         ) {
-            System.out.println("Waiting for client");
+            Log.message("Waiting for gateway");
             try (var client = serverSocket.accept();
                  var inputStream = client.getInputStream();
                  var outputStream = client.getOutputStream()
@@ -32,10 +33,12 @@ public class GatewayConnector {
             var objectStream = new ObjectInputStream(inputStream);
 
             var sensorTypes = (Set<SensorType>) objectStream.readObject();
-
             Log.message("Loaded sensor types: " + sensorTypes);
+            firebase.updateList(sensorTypes, SensorType.class, "sensor-types");
 
-            firebase.updateSensorTypes(sensorTypes);
+            var sensors = (Set<FirebaseSensor>) objectStream.readObject();
+            Log.message("Loaded sensors: " + sensors);
+            firebase.updateList(sensors, FirebaseSensor.class, "sensor");
 
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
@@ -43,13 +46,13 @@ public class GatewayConnector {
     }
 
     private static void readSensorData(InputStream inputStream, FirebaseConnector firebase) throws IOException {
-        System.out.println("Reading data");
+        Log.message("Reading data");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
         String message;
         while ((message = reader.readLine()) != null) {
-            System.out.println("Received: " + message);
+            Log.message("Received: " + message);
         }
-        System.out.println("Exiting");
+        Log.message("Exiting");
     }
 }

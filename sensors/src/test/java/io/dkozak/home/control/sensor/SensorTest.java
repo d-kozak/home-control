@@ -1,6 +1,7 @@
 package io.dkozak.home.control.sensor;
 
 
+import io.dkozak.home.control.sensor.firebase.SensorType;
 import io.dkozak.home.control.sensor.type.Blinder;
 import io.dkozak.home.control.sensor.type.Door;
 import io.dkozak.home.control.sensor.type.HVAC;

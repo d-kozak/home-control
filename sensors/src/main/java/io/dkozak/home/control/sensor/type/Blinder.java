@@ -1,12 +1,21 @@
 package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
+import io.dkozak.home.control.sensor.firebase.SensorValue;
+
+import static io.dkozak.home.control.utils.ListUtils.listOf;
 
 public class Blinder extends Sensor {
 
-    public Blinder(int nSensorClass, int nIdentifier, int nPercentage, String szDescription) {
-        super(nSensorClass, nIdentifier, szDescription);
-        this.setValue(nPercentage);
+    public Blinder(int sensorClass, int identifier, int percentage, String description) {
+        super(sensorClass, identifier, description);
+        this.setValue(percentage);
+    }
+
+    @Override
+    public FirebaseSensor asFirebaseSensor() {
+        return new FirebaseSensor(sensorClass, identifier, listOf(new SensorValue(listOf(value))));
     }
 
     public void setValue(int nPercentage) {

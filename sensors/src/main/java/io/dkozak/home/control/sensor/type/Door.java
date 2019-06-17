@@ -1,31 +1,32 @@
 package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
+import io.dkozak.home.control.sensor.firebase.SensorValue;
+
+import static io.dkozak.home.control.utils.ListUtils.listOf;
 
 public class Door extends Sensor {
-
-    private boolean bState = false;
 
     public Door(int sensorClass, int identifier, boolean bState, String description) {
         super(sensorClass, identifier, description);
         this.setIsOpen(bState);
     }
 
-    public boolean isOpen() {
-        return this.bState;
+    @Override
+    public FirebaseSensor asFirebaseSensor() {
+        return new FirebaseSensor(sensorClass, identifier, listOf(new SensorValue(listOf(value))));
     }
 
-    public void setIsOpen(boolean bState) {
-        this.bState = bState;
+    public boolean isOpen() {
+        return this.value != 0;
+    }
+
+    public void setIsOpen(boolean isOpen) {
+        this.value = isOpen ? 1 : 0;
     }
 
     public String toString() {
-
-        String szValue = "00";
-        if (this.bState == true) {
-            szValue = "01";
-        }
-
-        return super.toString() + szValue;
+        return super.toString() + (isOpen() ? "01" : "00");
     }
 }

@@ -1,12 +1,21 @@
 package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
+import io.dkozak.home.control.sensor.firebase.SensorValue;
+
+import static io.dkozak.home.control.utils.ListUtils.listOf;
 
 public class Temperature extends Sensor {
 
     public Temperature(int nSensorClass, int nIdentifier, int nValue, String szDescription) {
         super(nSensorClass, nIdentifier, szDescription);
         this.setValue(nValue);
+    }
+
+    @Override
+    public FirebaseSensor asFirebaseSensor() {
+        return new FirebaseSensor(sensorClass, identifier, listOf(new SensorValue(listOf(value))));
     }
 
     public void setValue(int nValue) {

@@ -44,6 +44,12 @@ public class Client {
 
         Log.message("Sending sensor types: " + sensorTypes);
         objectOutputStream.writeObject(sensorTypes);
+
+        var firebaseSensors = sensors.stream()
+                                     .map(Sensor::asFirebaseSensor)
+                                     .collect(Collectors.toSet());
+        Log.message("Sending sensors : " + firebaseSensors);
+        objectOutputStream.writeObject(firebaseSensors);
     }
 
     public static Result<String, Exception> simulateSensors(CopyOnWriteArrayList<Sensor> sensors, OutputStream outputStream, AtomicBoolean isCancelled) {
