@@ -4,10 +4,10 @@ public class HVAC extends Sensor {
 
     private boolean bState = false;
 
-    public HVAC(int nSensorClass, int nIdentifier, boolean bState, int nTemperature, String szDescription) {
-        super(nSensorClass, nIdentifier, szDescription);
+    public HVAC(int sensorClass, int identifier, boolean bState, int temperature, String description) {
+        super(sensorClass, identifier, description);
         this.setIsOn(bState);
-        this.setValue(nTemperature);
+        this.setValue(temperature);
     }
 
     public boolean isOn() {
@@ -21,7 +21,7 @@ public class HVAC extends Sensor {
 
     public String toString() {
 
-        String szValue = String.valueOf(nValue);
+        String szValue = String.valueOf(value);
         if (szValue.length() == 1) {
             szValue = "0" + szValue;
         }

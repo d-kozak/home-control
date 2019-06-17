@@ -14,11 +14,11 @@ public class Temperature extends Sensor {
             return;
         }
 
-        this.nValue = nValue;
+        this.value = nValue;
     }
 
     public String toString() {
-        String szValue = String.valueOf(nValue);
+        String szValue = String.valueOf(value);
         if (szValue.length() == 1) {
             szValue = "0" + szValue;
         }

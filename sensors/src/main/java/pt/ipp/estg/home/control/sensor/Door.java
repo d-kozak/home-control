@@ -4,8 +4,8 @@ public class Door extends Sensor {
 
     private boolean bState = false;
 
-    public Door(int nSensorClass, int nIdentifier, boolean bState, String szDescription) {
-        super(nSensorClass, nIdentifier, szDescription);
+    public Door(int sensorClass, int identifier, boolean bState, String description) {
+        super(sensorClass, identifier, description);
         this.setIsOpen(bState);
     }
 

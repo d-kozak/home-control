@@ -14,11 +14,11 @@ public class Blinder extends Sensor {
             return;
         }
 
-        this.nValue = nPercentage;
+        this.value = nPercentage;
     }
 
     public String toString() {
-        String szValue = String.valueOf(nValue);
+        String szValue = String.valueOf(value);
         if (szValue.length() == 1) {
             szValue = "00" + szValue;
         } else if (szValue.length() == 2) {
