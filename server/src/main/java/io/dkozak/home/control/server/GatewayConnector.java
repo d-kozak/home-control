@@ -1,6 +1,6 @@
 package io.dkozak.home.control.server;
 
-import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.SensorType;
 import io.dkozak.home.control.server.firebase.FirebaseConnector;
 import io.dkozak.home.control.utils.Log;
 
@@ -31,9 +31,11 @@ public class GatewayConnector {
         try {
             var objectStream = new ObjectInputStream(inputStream);
 
-            var sensorTypes = (Set<Sensor>) objectStream.readObject();
+            var sensorTypes = (Set<SensorType>) objectStream.readObject();
 
             Log.message("Loaded sensor types: " + sensorTypes);
+
+            firebase.updateSensorTypes(sensorTypes);
 
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
