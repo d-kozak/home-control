@@ -10,13 +10,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Rule {
+    public int sensorId;
     public int threshold;
     public int comparisonId;
     public int offset;
     public int userId;
 
-    public Rule(int threshold, int comparisonId) {
-        this(threshold, comparisonId, 0, 0);
+    public Rule(int sensorId, int threshold, int comparisonId) {
+        this(sensorId, threshold, comparisonId, 0, 0);
     }
 
     public boolean isTriggered(List<Integer> sensorValues) {

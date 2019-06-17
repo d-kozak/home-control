@@ -3,7 +3,8 @@ package io.dkozak.home.control.server.firebase;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.database.*;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.server.ServerConfig;
@@ -12,19 +13,18 @@ import io.dkozak.home.control.utils.Log;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.dkozak.home.control.server.firebase.DatabaseUtils.loadAndUpdate;
 import static io.dkozak.home.control.utils.Streams.streamOf;
 
 public class FirebaseConnector {
 
     private final FirebaseApp app;
     private final FirebaseDatabase database;
+    private final RuleEngine ruleEngine;
 
     private final DatabaseReference.CompletionListener logResultListener = (error, __) -> {
         if (error == null) {
@@ -47,6 +47,7 @@ public class FirebaseConnector {
 
             this.app = FirebaseApp.initializeApp(options);
             this.database = FirebaseDatabase.getInstance(this.app);
+            this.ruleEngine = new RuleEngine(this.database);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -69,24 +70,7 @@ public class FirebaseConnector {
         });
     }
 
-    private void loadAndUpdate(DatabaseReference databaseRef, Consumer<DataSnapshot> block) {
-        var listenerRef = new AtomicReference<ValueEventListener>();
-        listenerRef.set(databaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (listenerRef.get() != null) {
-                    databaseRef.removeEventListener(listenerRef.get());
-                    listenerRef.set(null);
-                    block.accept(snapshot);
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-
-            }
-        }));
-    }
 
     public void newSensorData(Sensor sensorData) {
         DatabaseReference ref = database.getReference("sensor/" + sensorData.getIdentifier());
@@ -98,20 +82,5 @@ public class FirebaseConnector {
 
             ref.setValue(sensor, logResultListener);
         });
-    }
-
-
-    public List<Integer> parseSerializedData(String serialized) {
-        var result = new ArrayList<Integer>();
-
-        for (int i = 0; i < serialized.length() - 1; i += 2) {
-            result.add(Integer.parseInt(serialized.substring(i, i + 2)));
-        }
-
-        return result;
-    }
-
-    public void executeRulesFor(Sensor sensorData) {
-
     }
 }
