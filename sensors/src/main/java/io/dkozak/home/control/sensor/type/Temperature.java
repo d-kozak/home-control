@@ -1,4 +1,6 @@
-package io.dkozak.home.control.sensor;
+package io.dkozak.home.control.sensor.type;
+
+import io.dkozak.home.control.sensor.Sensor;
 
 public class Temperature extends Sensor {
 

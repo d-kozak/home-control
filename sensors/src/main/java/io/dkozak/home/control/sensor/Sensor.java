@@ -3,7 +3,7 @@ package io.dkozak.home.control.sensor;
 import lombok.Data;
 
 @Data
-public class Sensor {
+public abstract class Sensor {
 
     protected int sensorClass;
     protected int identifier;

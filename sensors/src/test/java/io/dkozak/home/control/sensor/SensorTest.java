@@ -1,6 +1,10 @@
 package io.dkozak.home.control.sensor;
 
 
+import io.dkozak.home.control.sensor.type.Blinder;
+import io.dkozak.home.control.sensor.type.Door;
+import io.dkozak.home.control.sensor.type.HVAC;
+import io.dkozak.home.control.sensor.type.Light;
 import org.junit.jupiter.api.Test;
 
 import static io.dkozak.home.control.utils.ListUtils.listOf;

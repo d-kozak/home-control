@@ -1,19 +1,21 @@
-package io.dkozak.home.control.sensor;
+package io.dkozak.home.control.sensor.type;
 
-public class Door extends Sensor {
+import io.dkozak.home.control.sensor.Sensor;
+
+public class Light extends Sensor {
 
     private boolean bState = false;
 
-    public Door(int sensorClass, int identifier, boolean bState, String description) {
+    public Light(int sensorClass, int identifier, boolean bState, String description) {
         super(sensorClass, identifier, description);
-        this.setIsOpen(bState);
+        this.setIsOn(bState);
     }
 
-    public boolean isOpen() {
+    public boolean isOn() {
         return this.bState;
     }
 
-    public void setIsOpen(boolean bState) {
+    public void setIsOn(boolean bState) {
         this.bState = bState;
     }
 
