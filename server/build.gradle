@@ -21,5 +21,10 @@ repositories {
 }
 
 dependencies {
+	implementation 'com.google.firebase:firebase-admin:6.8.1'
+	implementation 'org.slf4j:slf4j-api:1.7.5'
+	implementation 'org.slf4j:slf4j-log4j12:1.7.5'
+
+
 	compile(project(":sensors"))
 }
