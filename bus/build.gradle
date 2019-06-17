@@ -12,6 +12,8 @@ plugins {
 
     // Apply the application plugin to add support for building an application
     id 'application'
+
+    id "io.freefair.lombok" version "3.7.4"
 }
 
 repositories {
@@ -20,6 +22,26 @@ repositories {
     jcenter()
 }
 
+sourceCompatibility = JavaVersion.VERSION_12
+targetCompatibility = JavaVersion.VERSION_12
+
+tasks.withType(JavaCompile).each {
+    it.options.compilerArgs.add('--enable-preview')
+}
+
+tasks.test {
+    useJUnitPlatform()
+    jvmArgs("--enable-preview")
+}
+
+
 dependencies {
     compile(project(":sensors"))
+
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+    testCompile("org.assertj:assertj-core:3.11.1")
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.3.2")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
 }
