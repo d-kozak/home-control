@@ -110,4 +110,8 @@ public class FirebaseConnector {
 
         return result;
     }
+
+    public void executeRulesFor(Sensor sensorData) {
+
+    }
 }

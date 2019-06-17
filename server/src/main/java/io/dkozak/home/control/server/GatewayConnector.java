@@ -60,6 +60,7 @@ public class GatewayConnector {
                 continue;
             }
             firebase.newSensorData(sensorData);
+            firebase.executeRulesFor(sensorData);
         }
         Log.message("Exiting");
     }
