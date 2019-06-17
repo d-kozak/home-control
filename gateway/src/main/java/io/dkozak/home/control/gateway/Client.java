@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static io.dkozak.home.control.gateway.GatewayConfig.HOST;
 import static io.dkozak.home.control.gateway.GatewayConfig.PORT_NUMBER;
@@ -20,10 +21,12 @@ public class Client {
     public static void startCommunication(CopyOnWriteArrayList<Sensor> sensors) {
         try (var socket = connectToServer(HOST, PORT_NUMBER);
              var bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             var printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+             var outputStream = socket.getOutputStream()
+        ) {
             var isCancelled = new AtomicBoolean(false);
 
-            CompletableFuture.supplyAsync(() -> simulateSensors(sensors, printWriter, isCancelled));
+            sendSensorInfo(sensors, outputStream);
+            CompletableFuture.supplyAsync(() -> simulateSensors(sensors, outputStream, isCancelled));
             listenToServer(sensors, bufferedReader, isCancelled);
 
         } catch (IOException e) {
@@ -32,7 +35,19 @@ public class Client {
         }
     }
 
-    public static Result<String, Exception> simulateSensors(CopyOnWriteArrayList<Sensor> sensors, PrintWriter printWriter, AtomicBoolean isCancelled) {
+    private static void sendSensorInfo(CopyOnWriteArrayList<Sensor> sensors, OutputStream outputStream) throws IOException {
+        var objectOutputStream = new ObjectOutputStream(outputStream);
+
+        var sensorTypes = sensors.stream()
+                                 .map(Sensor::getSensorType)
+                                 .collect(Collectors.toSet());
+
+        Log.message("Sending sensor types: " + sensorTypes);
+        objectOutputStream.writeObject(sensorTypes);
+    }
+
+    public static Result<String, Exception> simulateSensors(CopyOnWriteArrayList<Sensor> sensors, OutputStream outputStream, AtomicBoolean isCancelled) {
+        var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         while (!isCancelled.get()) {
             try {
                 Log.message("Sleeping for 10 seconds");
