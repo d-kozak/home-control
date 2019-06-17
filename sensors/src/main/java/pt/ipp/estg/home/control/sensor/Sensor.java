@@ -6,22 +6,19 @@ public class Sensor {
     protected int nIdentifier = 0;
     protected int nValue = 0;
     protected String szDescription = "";
+    private SensorType nSensorType;
 
-    public Sensor() {
-
-    }
 
     public Sensor(int nSensorClass, int nIdentifier, String szDescription) {
         this.nSensorClass = nSensorClass;
         this.nIdentifier = nIdentifier;
         this.szDescription = szDescription;
+        this.nSensorType = new SensorType(nSensorClass, this.getClass()
+                                                            .getSimpleName());
     }
 
-    public Sensor(int nSensorClass, int nIdentifier, int nValue, String szDescription) {
-        this.nSensorClass = nSensorClass;
-        this.nIdentifier = nIdentifier;
-        this.nValue = nValue;
-        this.szDescription = szDescription;
+    public SensorType getSensorType() {
+        return this.nSensorType;
     }
 
     public int getSensorClass() {
