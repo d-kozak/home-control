@@ -19,12 +19,13 @@ import static io.dkozak.home.control.utils.Streams.streamOf;
 public class RuleEngine {
     private FirebaseDatabase database;
 
-    private FCMMessaging messaging = new FCMMessaging();
+    private FCMMessaging messaging;
 
     private Map<Rule, ChildEventListener> listeners = new HashMap<>();
 
-    public RuleEngine(FirebaseDatabase database) {
+    public RuleEngine(FirebaseDatabase database, FCMMessaging messaging) {
         this.database = database;
+        this.messaging = messaging;
         initListeners();
     }
 

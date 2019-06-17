@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.server.ServerConfig;
@@ -47,7 +48,7 @@ public class FirebaseConnector {
 
             this.app = FirebaseApp.initializeApp(options);
             this.database = FirebaseDatabase.getInstance(this.app);
-            this.ruleEngine = new RuleEngine(this.database);
+            this.ruleEngine = new RuleEngine(this.database, new FCMMessaging(FirebaseMessaging.getInstance(this.app)));
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
