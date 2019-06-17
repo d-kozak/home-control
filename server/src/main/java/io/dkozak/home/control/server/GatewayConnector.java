@@ -1,5 +1,6 @@
 package io.dkozak.home.control.server;
 
+import io.dkozak.home.control.sensor.SensorProcessor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.sensor.firebase.SensorType;
 import io.dkozak.home.control.server.firebase.FirebaseConnector;
@@ -52,6 +53,13 @@ public class GatewayConnector {
         String message;
         while ((message = reader.readLine()) != null) {
             Log.message("Received: " + message);
+
+            var sensorData = SensorProcessor.parseData(message);
+            if (sensorData == null) {
+                Log.message("Could not parse sensor data");
+                continue;
+            }
+            firebase.newSensorData(sensorData);
         }
         Log.message("Exiting");
     }

@@ -4,6 +4,8 @@ import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.sensor.firebase.SensorValue;
 
+import java.util.List;
+
 import static io.dkozak.home.control.utils.ListUtils.listOf;
 
 public class Temperature extends Sensor {
@@ -16,6 +18,11 @@ public class Temperature extends Sensor {
     @Override
     public FirebaseSensor asFirebaseSensor() {
         return new FirebaseSensor(sensorClass, identifier, listOf(new SensorValue(listOf(value))));
+    }
+
+    @Override
+    public List<Integer> getData() {
+        return listOf(value);
     }
 
     public void setValue(int nValue) {

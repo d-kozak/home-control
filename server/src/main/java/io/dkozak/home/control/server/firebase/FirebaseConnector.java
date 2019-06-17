@@ -4,12 +4,16 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.*;
+import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
+import io.dkozak.home.control.sensor.firebase.SensorValue;
 import io.dkozak.home.control.server.ServerConfig;
 import io.dkozak.home.control.utils.Log;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,6 +26,16 @@ public class FirebaseConnector {
 
     private final FirebaseApp app;
     private final FirebaseDatabase database;
+
+    private final DatabaseReference.CompletionListener logResultListener = (error, __) -> {
+        if (error == null) {
+            Log.message("update done");
+        } else {
+            Log.message("failed");
+            error.toException()
+                 .printStackTrace();
+        }
+    };
 
     public FirebaseConnector() {
         try {
@@ -52,15 +66,7 @@ public class FirebaseConnector {
             allData.addAll(newData);
 
             Log.message("Persisting new elements: " + newData);
-            ref.setValue(new ArrayList<>(allData), (error, __) -> {
-                if (error == null) {
-                    Log.message("update done");
-                } else {
-                    Log.message("failed");
-                    error.toException()
-                         .printStackTrace();
-                }
-            });
+            ref.setValue(new ArrayList<>(allData), logResultListener);
         });
     }
 
@@ -81,5 +87,28 @@ public class FirebaseConnector {
 
             }
         }));
+    }
+
+    public void newSensorData(Sensor sensorData) {
+        DatabaseReference ref = database.getReference("sensor/" + sensorData.getIdentifier());
+        loadAndUpdate(ref, snapshot -> {
+            FirebaseSensor sensor = snapshot.getValue(FirebaseSensor.class);
+
+            sensor.getValues()
+                  .add(new SensorValue(sensorData.getData()));
+
+            ref.setValue(sensor, logResultListener);
+        });
+    }
+
+
+    public List<Integer> parseSerializedData(String serialized) {
+        var result = new ArrayList<Integer>();
+
+        for (int i = 0; i < serialized.length() - 1; i += 2) {
+            result.add(Integer.parseInt(serialized.substring(i, i + 2)));
+        }
+
+        return result;
     }
 }

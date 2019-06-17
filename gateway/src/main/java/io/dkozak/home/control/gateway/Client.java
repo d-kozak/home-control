@@ -56,8 +56,8 @@ public class Client {
         var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         while (!isCancelled.get()) {
             try {
-                Log.message("Sleeping for 10 seconds");
-                Thread.sleep(10000);
+                Log.message("Sleeping for 3 seconds");
+                Thread.sleep(3000);
 
                 // Generate random event
                 String szMessage = SensorProcessor.generateRandomData(sensors);

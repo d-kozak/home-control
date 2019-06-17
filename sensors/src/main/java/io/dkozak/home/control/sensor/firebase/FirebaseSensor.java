@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(of = {"sensorType", "sensorId"})
+@EqualsAndHashCode(of = "sensorId")
 public class FirebaseSensor implements Serializable, Comparable<FirebaseSensor> {
     private int sensorType;
     private int sensorId;
@@ -20,8 +20,7 @@ public class FirebaseSensor implements Serializable, Comparable<FirebaseSensor> 
 
     @Override
     public int compareTo(FirebaseSensor other) {
-        return Comparator.comparingInt(FirebaseSensor::getSensorType)
-                         .thenComparingInt(FirebaseSensor::getSensorId)
+        return Comparator.comparingInt(FirebaseSensor::getSensorId)
                          .compare(this, other);
     }
 }

@@ -4,6 +4,8 @@ import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.sensor.firebase.SensorValue;
 
+import java.util.List;
+
 import static io.dkozak.home.control.utils.ListUtils.listOf;
 
 public class HVAC extends Sensor {
@@ -29,6 +31,10 @@ public class HVAC extends Sensor {
         this.bState = bState;
     }
 
+    @Override
+    public List<Integer> getData() {
+        return listOf(value, bState ? 1 : 0);
+    }
 
     public String toString() {
 

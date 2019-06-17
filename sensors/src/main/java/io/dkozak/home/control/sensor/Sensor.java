@@ -4,6 +4,7 @@ import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.sensor.firebase.SensorType;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -25,6 +26,8 @@ public abstract class Sensor {
     }
 
     public abstract FirebaseSensor asFirebaseSensor();
+
+    public abstract List<Integer> getData();
 
     @Override
     public boolean equals(Object o) {
