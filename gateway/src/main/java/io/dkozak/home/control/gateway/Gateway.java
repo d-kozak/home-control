@@ -4,6 +4,7 @@ import io.dkozak.home.control.sensor.*;
 import io.dkozak.home.control.utils.Log;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.dkozak.home.control.utils.ListUtils.listOf;
 
@@ -51,9 +52,6 @@ public class Gateway {
     static void connectToServer(List<Sensor> sensors) {
         Log.message("Starting connection to server");
 
-
-        var client = new Client(sensors);
-        System.out.println("!!!!!Here");
-        new Thread(client).start();
+        Client.startCommunication(new CopyOnWriteArrayList<>(sensors));
     }
 }

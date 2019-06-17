@@ -2,117 +2,103 @@ package io.dkozak.home.control.gateway;
 
 import io.dkozak.home.control.sensor.*;
 import io.dkozak.home.control.utils.Log;
+import io.dkozak.home.control.utils.Result;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Client implements Runnable {
+public class Client {
 
-    private Socket myClientSocket = null;
-    private DataInputStream myDataInputStream = null;
-    private PrintWriter myOutputStream;
+    public static final int PORT_NUMBER = 3000;
+    public static final String HOST = "localhost";
 
-    private boolean bIsClosed = false;
-    private List<Sensor> mSensors;
+    public static void startCommunication(CopyOnWriteArrayList<Sensor> sensors) {
+        try (var socket = connectToServer();
+             var bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             var printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+            var isCancelled = new AtomicBoolean(false);
 
-    public Client(List<Sensor> mSensors) {
+            CompletableFuture.supplyAsync(() -> simulateSensors(sensors, printWriter, isCancelled));
+            listenToServer(sensors, bufferedReader, isCancelled);
 
-        this.mSensors = mSensors;
-
-        int portNumber = 3000;
-        String host = "localhost";
-
-        try {
-
-            Log.message("Opening socket to server: " + host + " " + portNumber);
-
-            this.myClientSocket = new Socket(host, portNumber);
-            OutputStream outputStream = this.myClientSocket.getOutputStream();
-            this.myOutputStream = new PrintWriter(new OutputStreamWriter(outputStream));
-            this.myDataInputStream = new DataInputStream(myClientSocket.getInputStream());
-
-        } catch (UnknownHostException e) {
-            Log.message("Don't know about host " + host);
         } catch (IOException e) {
+            Log.message("IO exception");
             e.printStackTrace();
-            Log.message("Couldn't get I/O for the connection to the host " + host);
         }
+    }
 
-        if ((myClientSocket != null) &&
-                (myOutputStream != null) &&
-                (myDataInputStream != null)) {
-
+    public static Result<String, Exception> simulateSensors(CopyOnWriteArrayList<Sensor> sensors, PrintWriter printWriter, AtomicBoolean isCancelled) {
+        while (!isCancelled.get()) {
             try {
+                Log.message("Sleeping for 10 seconds");
+                Thread.sleep(10000);
 
-                while (!bIsClosed) {
+                // Generate random event
+                String szMessage = generateRandomData(sensors);
+                Log.message("Writing data to server: " + szMessage);
 
-                    try {
-
-                        Log.message("Sleeping for 60 seconds");
-                        Thread.sleep(10000);
-
-                        // Generate random event
-                        String szMessage = this.generateRandomData();
-                        Log.message("Writing data to server: " + szMessage);
-
-                        this.myOutputStream.write(szMessage + "\n");
-                        this.myOutputStream.flush();
-                    } catch (InterruptedException e) {
-                        System.out.println("Interrupted Exception");
-                    }
-                }
-
-                Log.message("Closing connection");
-
-                myOutputStream.close();
-                myDataInputStream.close();
-                myClientSocket.close();
-
-            } catch (IOException e) {
-                System.err.println("IOException:  " + e);
+                printWriter.write(szMessage + "\n");
+                printWriter.flush();
+            } catch (InterruptedException ex) {
+                Log.message("Interrupted");
+                ex.printStackTrace();
+                isCancelled.set(true);
+                return new Result<>(null, ex);
             }
         }
+
+        return new Result<>("OK", null);
     }
 
-    @SuppressWarnings("deprecation")
-    public void run() {
-
-        String szResponseLine = "";
-
+    static Socket connectToServer() {
         try {
-
-            if (this.myDataInputStream != null) {
-                while ((szResponseLine = myDataInputStream.readLine()) != null) {
-
-                    Log.message("Received data: " + szResponseLine);
-
-                    if (szResponseLine.contains("exit") == true) {
-                        break;
-                    }
-
-                    // Sensor data must be "CLASS" "ID" "VALUE" For example: "010120"
-                    Sensor mSensor = parseData(szResponseLine);
-
-                    if (mSensor == null) {
-                        // do not do anything, we have received some invalid data
-                    } else {
-                        // Update current data
-                        this.updateSensorData(mSensor);
-                    }
-                }
-            }
-            this.bIsClosed = true;
-
+            Log.message("Opening socket to server: " + HOST + " " + PORT_NUMBER);
+            return new Socket(HOST, PORT_NUMBER);
+        } catch (UnknownHostException e) {
+            Log.message("Don't know about HOST " + HOST);
+            e.printStackTrace();
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            Log.message("Exception while reading data from server: " + e);
+            Log.message("Couldn't get I/O for the connection to the HOST " + HOST);
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
+    static Result<String, Exception> listenToServer(CopyOnWriteArrayList<Sensor> sensors, BufferedReader inputStream, AtomicBoolean isCancelled) {
+        try {
+            String line;
+            while (!isCancelled.get() && (line = inputStream.readLine()) != null) {
+                Log.message("Received: " + line);
 
-    private Sensor parseData(String szResponseLine) {
+                if (line.equals("exit")) {
+                    Log.message("Exiting...");
+                    break;
+                }
+
+                var newData = parseData(line);
+                if (newData != null) {
+                    updateSensorData(newData, sensors);
+                } else {
+                    Log.message("Could not parse received data: " + line);
+                }
+
+            }
+            isCancelled.set(true);
+            return new Result<>("OK", null);
+        } catch (IOException ex) {
+            Log.message("IO exception");
+            ex.printStackTrace();
+            return new Result<>(null, ex);
+        }
+    }
+
+    static Sensor parseData(String szResponseLine) {
 
         Log.message("Parsing data: " + szResponseLine);
 
@@ -185,52 +171,52 @@ public class Client implements Runnable {
     }
 
 
-    private void updateSensorData(Sensor mSensor) {
+    static void updateSensorData(Sensor newValues, CopyOnWriteArrayList<Sensor> sensors) {
 
-        Log.message("Updating io.dkozak.home.control.sensor data: " + mSensor.toString());
+        Log.message("Updating io.dkozak.home.control.sensor data: " + newValues.toString());
 
-        for (int nIndex = 0; nIndex < mSensors.size(); nIndex++) {
+        for (int nIndex = 0; nIndex < sensors.size(); nIndex++) {
 
-            Sensor mListSensor = mSensors.get(nIndex);
-            if ((mListSensor.getSensorClass() == mSensor.getSensorClass()) &&
-                    (mListSensor.getIdentifier() == mSensor.getIdentifier())) {
+            Sensor mListSensor = sensors.get(nIndex);
+            if ((mListSensor.getSensorClass() == newValues.getSensorClass()) &&
+                    (mListSensor.getIdentifier() == newValues.getIdentifier())) {
 
-                switch (mSensor.getSensorClass()) {
+                switch (newValues.getSensorClass()) {
                     case 0:
                     case 1:
-                        mListSensor.setValue(mSensor.getValue());
+                        mListSensor.setValue(newValues.getValue());
                         break;
 
                     // door
                     case 2:
-                        ((Door) mListSensor).setIsOpen(((Door) mSensor).isOpen());
+                        ((Door) mListSensor).setIsOpen(((Door) newValues).isOpen());
                         break;
 
                     // Light
                     case 3:
-                        ((Light) mListSensor).setIsOn(((Light) mSensor).isOn());
+                        ((Light) mListSensor).setIsOn(((Light) newValues).isOn());
                         break;
 
                     case 4:
-                        mListSensor.setValue(mSensor.getValue());
-                        ((HVAC) mListSensor).setIsOn(((HVAC) mSensor).isOn());
+                        mListSensor.setValue(newValues.getValue());
+                        ((HVAC) mListSensor).setIsOn(((HVAC) newValues).isOn());
                         break;
                 }
             }
         }
 
-        Log.message("Sensor data updated: " + mSensors.toString());
+        Log.message("Sensor data updated: " + sensors.toString());
     }
 
 
-    public String generateRandomData() {
+    static String generateRandomData(CopyOnWriteArrayList<Sensor> sensors) {
 
         Log.message("Generating random data");
 
         Random m = new Random();
-        int nNextSensorPos = m.nextInt(this.mSensors.size() - 1);
+        int nNextSensorPos = m.nextInt(sensors.size() - 1);
 
-        Sensor mSensor = this.mSensors.get(nNextSensorPos);
+        Sensor mSensor = sensors.get(nNextSensorPos);
         switch (mSensor.getSensorClass()) {
 
             // Temperature io.dkozak.home.control.sensor
