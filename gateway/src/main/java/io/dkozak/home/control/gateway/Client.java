@@ -6,7 +6,7 @@ import io.dkozak.home.control.utils.Log;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Client implements Runnable {
@@ -16,9 +16,9 @@ public class Client implements Runnable {
     private PrintWriter myOutputStream;
 
     private boolean bIsClosed = false;
-    private ArrayList<Sensor> mSensors;
+    private List<Sensor> mSensors;
 
-    public Client(ArrayList<Sensor> mSensors) {
+    public Client(List<Sensor> mSensors) {
 
         this.mSensors = mSensors;
 
@@ -47,7 +47,7 @@ public class Client implements Runnable {
 
             try {
 
-                while (bIsClosed == false) {
+                while (!bIsClosed) {
 
                     try {
 

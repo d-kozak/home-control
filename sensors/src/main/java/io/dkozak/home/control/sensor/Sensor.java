@@ -9,15 +9,15 @@ public class Sensor {
     protected int identifier;
     protected int value = 0;
     protected String description;
-    protected SensorType nSensorType;
+    protected SensorType sensorType;
 
 
     public Sensor(int sensorClass, int identifier, String description) {
         this.sensorClass = sensorClass;
         this.identifier = identifier;
         this.description = description;
-        this.nSensorType = new SensorType(sensorClass, this.getClass()
-                                                           .getSimpleName());
+        this.sensorType = new SensorType(sensorClass, this.getClass()
+                                                          .getSimpleName());
     }
 
     public String toString() {

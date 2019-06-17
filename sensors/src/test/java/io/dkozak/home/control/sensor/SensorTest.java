@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.dkozak.home.control.utils.ListUtils.listOf;
 import static io.dkozak.home.control.utils.Pair.pairOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SensorTest {
 

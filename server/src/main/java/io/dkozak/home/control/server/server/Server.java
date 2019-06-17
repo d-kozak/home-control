@@ -9,7 +9,7 @@ import com.google.firebase.database.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class HomeControlServer {
+public class Server {
 
     public static void main(String[] args) {
 
