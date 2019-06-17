@@ -6,7 +6,6 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.*;
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
-import io.dkozak.home.control.sensor.firebase.SensorValue;
 import io.dkozak.home.control.server.ServerConfig;
 import io.dkozak.home.control.utils.Log;
 
@@ -95,7 +94,7 @@ public class FirebaseConnector {
             FirebaseSensor sensor = snapshot.getValue(FirebaseSensor.class);
 
             sensor.getValues()
-                  .add(new SensorValue(sensorData.getData()));
+                  .add(sensorData.getData());
 
             ref.setValue(sensor, logResultListener);
         });

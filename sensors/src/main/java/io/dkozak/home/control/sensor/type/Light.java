@@ -2,7 +2,6 @@ package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
-import io.dkozak.home.control.sensor.firebase.SensorValue;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class Light extends Sensor {
 
     @Override
     public FirebaseSensor asFirebaseSensor() {
-        return new FirebaseSensor(sensorClass, identifier, listOf(new SensorValue(listOf(value))));
+        return new FirebaseSensor(sensorClass, identifier, listOf(listOf(value)));
     }
 
     @Override
