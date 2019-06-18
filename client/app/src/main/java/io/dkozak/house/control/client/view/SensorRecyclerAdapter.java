@@ -16,6 +16,7 @@ import java.util.Map;
 import io.dkozak.house.control.client.R;
 import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
+import io.dkozak.house.control.client.view.lib.SensorAwareActivity;
 
 public class SensorRecyclerAdapter extends RecyclerView.Adapter<SensorViewHolder> {
     private final Context context;
@@ -64,7 +65,7 @@ public class SensorRecyclerAdapter extends RecyclerView.Adapter<SensorViewHolder
             public void onClick(View view) {
                 Intent intent = new Intent(context, SensorDetailsActivity.class);
                 intent.putExtra(SensorDetailsActivity.SENSOR_NAME, sensorName);
-                intent.putExtra(SensorDetailsActivity.SENSOR_ID, sensor.getSensorId());
+                intent.putExtra(SensorAwareActivity.SENSOR_ID, sensor.getSensorId());
                 intent.putExtra(SensorDetailsActivity.SENSOR_TYPE, sensor.getSensorType());
                 context.startActivity(intent);
             }
