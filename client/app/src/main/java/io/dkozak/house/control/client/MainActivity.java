@@ -23,16 +23,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int RC_SIGN_IN = 123;
     public static final String SENSOR_TYPES_PATH = "sensor-types";
+    public static final String SENSOR_PATH = "sensor";
     private ValueEventListener sensorTypeListener;
+    private ValueEventListener sensorListener;
+
+    private Map<Integer, SensorType> sensorTypes = new HashMap<>();
+    private List<Sensor> sensors = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +106,12 @@ public class MainActivity extends AppCompatActivity {
                     .removeEventListener(sensorTypeListener);
             sensorTypeListener = null;
         }
+        if (sensorListener != null) {
+            FirebaseDatabase.getInstance()
+                    .getReference(SENSOR_PATH)
+                    .removeEventListener(sensorListener);
+            sensorListener = null;
+        }
     }
 
     private void setupDatabaseListeners() {
@@ -105,9 +120,27 @@ public class MainActivity extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Toast.makeText(MainActivity.this, "DATA!", Toast.LENGTH_LONG).show();
                         List<SensorType> sensorTypes = (List) dataSnapshot.getValue();
+                        MainActivity.this.sensorTypes.clear();
+                        for (SensorType type : sensorTypes) {
+                            MainActivity.this.sensorTypes.put(type.getId(), type);
+                        }
                         Toast.makeText(MainActivity.this, sensorTypes.toString(), Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+        sensorListener = database.getReference(SENSOR_PATH)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        List<Sensor> sensors = ((List) dataSnapshot.getValue());
+                        MainActivity.this.sensors.clear();
+                        MainActivity.this.sensors.addAll(sensors);
                     }
 
                     @Override
