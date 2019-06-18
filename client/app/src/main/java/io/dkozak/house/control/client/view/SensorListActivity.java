@@ -45,7 +45,7 @@ public class SensorListActivity extends AppCompatActivity {
 
         RecyclerView sensorView = findViewById(R.id.sensorView);
         sensorView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new SensorRecyclerAdapter();
+        adapter = new SensorRecyclerAdapter(this);
         sensorView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }

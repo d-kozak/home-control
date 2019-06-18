@@ -1,5 +1,7 @@
 package io.dkozak.house.control.client.view;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +18,16 @@ import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
 
 public class SensorRecyclerAdapter extends RecyclerView.Adapter<SensorViewHolder> {
+    private final Context context;
     private List<Sensor> sensors;
     private Map<Integer, SensorType> sensorTypes;
 
-    public SensorRecyclerAdapter() {
-        this(Collections.<Sensor>emptyList(), Collections.<Integer, SensorType>emptyMap());
+    public SensorRecyclerAdapter(Context context) {
+        this(context, Collections.<Sensor>emptyList(), Collections.<Integer, SensorType>emptyMap());
     }
 
-    public SensorRecyclerAdapter(List<Sensor> sensors, Map<Integer, SensorType> sensorTypes) {
+    public SensorRecyclerAdapter(Context context, List<Sensor> sensors, Map<Integer, SensorType> sensorTypes) {
+        this.context = context;
         this.sensors = sensors;
         this.sensorTypes = sensorTypes;
     }
@@ -48,12 +52,23 @@ public class SensorRecyclerAdapter extends RecyclerView.Adapter<SensorViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SensorViewHolder holder, int position) {
-        Sensor sensor = sensors.get(position);
+        final Sensor sensor = sensors.get(position);
         SensorType sensorType = sensorTypes.get(sensor.getSensorType());
-        holder.sensorName.setText(sensorType.getName() + " " + sensor.getSensorId());
+        final String sensorName = sensorType.getName() + " " + sensor.getSensorId();
+        holder.sensorName.setText(sensorName);
         holder.sensorValue.setText(
                 sensor.getValues().isEmpty() ? "" : sensor.getValues().get(sensor.getValues().size() - 1).get(0).toString()
         );
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, SensorDetailsActivity.class);
+                intent.putExtra(SensorDetailsActivity.SENSOR_NAME, sensorName);
+                intent.putExtra(SensorDetailsActivity.SENSOR_ID, sensor.getSensorId());
+                intent.putExtra(SensorDetailsActivity.SENSOR_TYPE, sensor.getSensorType());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
