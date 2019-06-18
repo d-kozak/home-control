@@ -17,13 +17,22 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 import java.util.List;
 
+import io.dkozak.house.control.client.model.SensorType;
+
 public class MainActivity extends AppCompatActivity {
 
     public static final int RC_SIGN_IN = 123;
+    public static final String SENSOR_TYPES_PATH = "sensor-types";
+    private ValueEventListener sensorTypeListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,21 +41,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FirebaseUser user = FirebaseAuth.getInstance()
-                .getCurrentUser();
-        if (user != null) {
-            Toast.makeText(this, "Welcome " + user.getDisplayName(), Toast.LENGTH_LONG).show();
-        } else {
-            requestSignIn();
-        }
-
-
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
                 AuthUI.getInstance()
                         .signOut(MainActivity.this)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -59,6 +57,64 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseUser user = FirebaseAuth.getInstance()
+                .getCurrentUser();
+        if (user != null) {
+            Toast.makeText(this, "Welcome " + user.getDisplayName(), Toast.LENGTH_LONG).show();
+            setupDatabaseListeners();
+
+            FirebaseDatabase.getInstance()
+                    .getReference("fooo")
+                    .push()
+                    .setValue(42, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                            Toast.makeText(MainActivity.this, "DONE!", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+        } else {
+            requestSignIn();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        clearDatabaseListeners();
+    }
+
+    private void clearDatabaseListeners() {
+        if (sensorTypeListener != null) {
+            FirebaseDatabase.getInstance()
+                    .getReference(SENSOR_TYPES_PATH)
+                    .removeEventListener(sensorTypeListener);
+            sensorTypeListener = null;
+        }
+    }
+
+    private void setupDatabaseListeners() {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        sensorTypeListener = database.getReference(SENSOR_TYPES_PATH)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Toast.makeText(MainActivity.this, "DATA!", Toast.LENGTH_LONG).show();
+                        List<SensorType> sensorTypes = (List) dataSnapshot.getValue();
+                        Toast.makeText(MainActivity.this, sensorTypes.toString(), Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void requestSignIn() {
