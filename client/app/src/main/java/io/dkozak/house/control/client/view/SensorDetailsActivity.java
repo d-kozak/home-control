@@ -15,9 +15,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.dkozak.house.control.client.R;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.view.LineChartView;
 
 import static io.dkozak.house.control.client.Utils.requireNonNegative;
 import static java.util.Objects.requireNonNull;
@@ -31,6 +37,7 @@ public class SensorDetailsActivity extends AppCompatActivity {
     private int sensorId;
     private int sensorType;
     private ValueEventListener sensorDetailsListener;
+    private LineChartView chart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +53,20 @@ public class SensorDetailsActivity extends AppCompatActivity {
         String sensorName = requireNonNull(intent.getStringExtra(SENSOR_NAME));
 
         ((TextView) findViewById(R.id.sensorName)).setText(sensorName);
+
+        chart = findViewById(R.id.chart);
+    }
+
+    private void updateChart(List<List<Integer>> values) {
+
+        List<PointValue> pointValues = new ArrayList<>();
+
+        for (int i = 0; i < values.size(); i++) {
+            List<Integer> value = values.get(i);
+            pointValues.add(new PointValue(i, value.get(0)));
+        }
+
+        chart.setLineChartData(new LineChartData(Arrays.asList(new Line(pointValues))));
     }
 
     @Override
@@ -58,7 +79,10 @@ public class SensorDetailsActivity extends AppCompatActivity {
                         GenericTypeIndicator<List<List<Integer>>> typeIndicator = new GenericTypeIndicator<List<List<Integer>>>() {
                         };
                         List<List<Integer>> values = dataSnapshot.getValue(typeIndicator);
-                        Toast.makeText(SensorDetailsActivity.this, values.toString(), Toast.LENGTH_LONG).show();
+                        if (values != null) {
+                            Toast.makeText(SensorDetailsActivity.this, values.toString(), Toast.LENGTH_LONG).show();
+                            updateChart(values);
+                        }
                     }
 
                     @Override
