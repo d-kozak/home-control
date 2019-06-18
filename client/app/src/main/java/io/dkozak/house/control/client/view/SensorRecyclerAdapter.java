@@ -1,4 +1,4 @@
-package io.dkozak.house.control.client;
+package io.dkozak.house.control.client.view;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,15 +7,21 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import io.dkozak.house.control.client.R;
 import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
 
 public class SensorRecyclerAdapter extends RecyclerView.Adapter<SensorViewHolder> {
     private List<Sensor> sensors;
     private Map<Integer, SensorType> sensorTypes;
+
+    public SensorRecyclerAdapter() {
+        this(Collections.<Sensor>emptyList(), Collections.<Integer, SensorType>emptyMap());
+    }
 
     public SensorRecyclerAdapter(List<Sensor> sensors, Map<Integer, SensorType> sensorTypes) {
         this.sensors = sensors;

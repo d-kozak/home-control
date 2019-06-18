@@ -1,10 +1,12 @@
-package io.dkozak.house.control.client;
+package io.dkozak.house.control.client.view;
 
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import io.dkozak.house.control.client.R;
 
 public class SensorViewHolder extends RecyclerView.ViewHolder {
 

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">House Control</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Sensors</string>
+    <string name="title_activity_login">Login</string>
 </resources>
