@@ -45,6 +45,9 @@ public class SensorRecyclerAdapter extends RecyclerView.Adapter<SensorViewHolder
         Sensor sensor = sensors.get(position);
         SensorType sensorType = sensorTypes.get(sensor.getSensorType());
         holder.sensorName.setText(sensorType.getName() + " " + sensor.getSensorId());
+        holder.sensorValue.setText(
+                sensor.getValues().isEmpty() ? "" : sensor.getValues().get(sensor.getValues().size() - 1).get(0).toString()
+        );
     }
 
     @Override
