@@ -10,9 +10,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".view.NewSensorActivity"
+            android:label="@string/title_activity_new_sensor"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
             android:name=".view.SensorDetailsActivity"
             android:label="@string/title_activity_sensor_details"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".view.LoginActivity"
             android:label="@string/title_activity_login"
@@ -26,7 +30,7 @@
         <activity
             android:name=".view.SensorListActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

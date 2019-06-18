@@ -1,14 +1,16 @@
 package io.dkozak.house.control.client.view;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.List;
 import java.util.Map;
@@ -20,41 +22,38 @@ import io.dkozak.house.control.client.view.lib.SensorAwareActivity;
 import io.dkozak.house.control.client.view.sensorlist.OnSensorClickedListener;
 import io.dkozak.house.control.client.view.sensorlist.SensorRecyclerAdapter;
 
-public class SensorListActivity extends SensorAwareActivity {
-
+public class NewSensorActivity extends SensorAwareActivity {
 
     private SensorRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sensor_list);
+        setContentView(R.layout.activity_new_sensor);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         RecyclerView sensorView = findViewById(R.id.sensorView);
+
         sensorView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SensorRecyclerAdapter(new OnSensorClickedListener() {
             @Override
             public void onClick(Sensor sensor, SensorType sensorType) {
-                Intent intent = new Intent(SensorListActivity.this, SensorDetailsActivity.class);
-                intent.putExtra(SensorDetailsActivity.SENSOR_NAME, sensorType.getName() + " " + sensor.getSensorId());
-                intent.putExtra(SensorAwareActivity.SENSOR_ID, sensor.getSensorId());
-                intent.putExtra(SensorDetailsActivity.SENSOR_TYPE, sensor.getSensorType());
-                startActivity(intent);
+                addNewSensor(sensor, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                        if (databaseError == null) {
+                            Toast.makeText(NewSensorActivity.this, "Sensor added", Toast.LENGTH_LONG).show();
+                            finish();
+                        } else {
+                            Toast.makeText(NewSensorActivity.this, "Could not add new sensor", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
         });
         sensorView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(SensorListActivity.this, NewSensorActivity.class));
-            }
-        });
     }
 
     @Override
@@ -63,7 +62,8 @@ public class SensorListActivity extends SensorAwareActivity {
     }
 
     @Override
-    protected void onNewUserSensors(List<Sensor> userSensors) {
-        adapter.update(userSensors);
+    protected void onNewNonUserSensors(List<Sensor> sensors) {
+        adapter.update(sensors);
     }
+
 }

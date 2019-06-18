@@ -63,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
                     startActivity(new Intent(this, SensorListActivity.class));
+                    finish();
                 } else {
                     Toast.makeText(this, "Could not load user info...", Toast.LENGTH_LONG).show();
                 }

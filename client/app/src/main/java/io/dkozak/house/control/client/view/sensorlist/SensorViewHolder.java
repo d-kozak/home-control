@@ -1,4 +1,4 @@
-package io.dkozak.house.control.client.view;
+package io.dkozak.house.control.client.view.sensorlist;
 
 import android.view.View;
 import android.widget.TextView;

@@ -10,14 +10,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
@@ -36,14 +39,22 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     private Map<Integer, Sensor> sensors = new HashMap<>();
 
-    private int sensorId;
+    private int currentSensorId;
 
 
     protected void onNewSensorTypes(Map<Integer, SensorType> sensorTypes) {
 
     }
 
-    protected void onNewUserSensors(List<Sensor> sensors) {
+    protected void onNewAllSensors(List<Sensor> sensors) {
+
+    }
+
+    protected void onNewUserSensors(List<Sensor> userSensors) {
+
+    }
+
+    protected void onNewNonUserSensors(List<Sensor> sensors) {
 
     }
 
@@ -51,12 +62,36 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     }
 
+
+    protected void addNewSensor(final Sensor sensor, final DatabaseReference.CompletionListener onComplete) {
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference(getUserSensorPath());
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<List<Integer>> typeIndicator = new GenericTypeIndicator<List<Integer>>() {
+                };
+                List<Integer> userSensors = dataSnapshot.getValue(typeIndicator);
+                if (userSensors == null)
+                    userSensors = new ArrayList<>();
+                if (!userSensors.contains(sensor.getSensorId())) {
+                    userSensors.add(sensor.getSensorId());
+                    ref.setValue(userSensors, onComplete);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
 
         Intent intent = getIntent();
-        sensorId = intent.getIntExtra(SENSOR_ID, -1);
+        currentSensorId = intent.getIntExtra(SENSOR_ID, -1);
 
     }
 
@@ -92,6 +127,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                         GenericTypeIndicator<List<Sensor>> typeIndicator = new GenericTypeIndicator<List<Sensor>>() {
                         };
                         List<Sensor> allSensors = dataSnapshot.getValue(typeIndicator);
+                        onNewAllSensors(allSensors);
                         Map<Integer, Sensor> map = new HashMap<>();
                         if (allSensors != null) {
                             for (Sensor sensor : allSensors) {
@@ -123,6 +159,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                                 }
                             }
                             onNewUserSensors(userSensors);
+                            getNonUserSensors(new HashSet<>(userSensors));
                         }
                     }
 
@@ -132,8 +169,8 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                     }
                 });
 
-        if (sensorId != -1) {
-            sensorValuesListener = FirebaseDatabase.getInstance().getReference("sensor/" + sensorId + "/values")
+        if (currentSensorId != -1) {
+            sensorValuesListener = FirebaseDatabase.getInstance().getReference("sensor/" + currentSensorId + "/values")
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -151,6 +188,32 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                         }
                     });
         }
+    }
+
+    private void getNonUserSensors(final Set<Sensor> userSensors) {
+        FirebaseDatabase.getInstance().getReference(SENSOR_PATH)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        GenericTypeIndicator<List<Sensor>> typeIndicator = new GenericTypeIndicator<List<Sensor>>() {
+                        };
+                        List<Sensor> allSensors = dataSnapshot.getValue(typeIndicator);
+                        List<Sensor> filtered = new ArrayList<>();
+                        if (allSensors != null) {
+                            for (Sensor sensor : allSensors) {
+                                if (!userSensors.contains(sensor)) {
+                                    filtered.add(sensor);
+                                }
+                            }
+                        }
+                        onNewNonUserSensors(filtered);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     @Override
@@ -179,7 +242,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
             userSensorsListener = null;
         }
         if (sensorValuesListener != null) {
-            FirebaseDatabase.getInstance().getReference("sensor/" + sensorId + "/values")
+            FirebaseDatabase.getInstance().getReference("sensor/" + currentSensorId + "/values")
                     .removeEventListener(sensorValuesListener);
             sensorValuesListener = null;
         }
