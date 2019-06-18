@@ -3,7 +3,6 @@ package io.dkozak.house.control.client.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -80,7 +79,6 @@ public class SensorDetailsActivity extends AppCompatActivity {
                         };
                         List<List<Integer>> values = dataSnapshot.getValue(typeIndicator);
                         if (values != null) {
-                            Toast.makeText(SensorDetailsActivity.this, values.toString(), Toast.LENGTH_LONG).show();
                             updateChart(values);
                         }
                     }

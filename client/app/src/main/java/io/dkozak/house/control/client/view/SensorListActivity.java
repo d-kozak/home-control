@@ -75,7 +75,6 @@ public class SensorListActivity extends AppCompatActivity {
                         for (DataSnapshot item : dataSnapshot.getChildren()) {
                             sensorTypes.put(Integer.parseInt(item.getKey()), item.getValue(SensorType.class));
                         }
-                        Toast.makeText(SensorListActivity.this, sensorTypes.toString(), Toast.LENGTH_LONG).show();
                         SensorListActivity.this.adapter.update(sensorTypes);
                     }
 
@@ -92,7 +91,6 @@ public class SensorListActivity extends AppCompatActivity {
                         GenericTypeIndicator<List<Sensor>> typeIndicator = new GenericTypeIndicator<List<Sensor>>() {
                         };
                         List<Sensor> sensors = dataSnapshot.getValue(typeIndicator);
-                        Toast.makeText(SensorListActivity.this, sensors.toString(), Toast.LENGTH_LONG).show();
                         SensorListActivity.this.adapter.update(sensors);
                     }
 
