@@ -1,9 +1,5 @@
 package io.dkozak.house.control.client.view.lib;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.PersistableBundle;
-
 import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,8 +35,11 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     private Map<Integer, Sensor> sensors = new HashMap<>();
 
-    private int currentSensorId;
+    private int currentSensorId = -1;
 
+    protected void setCurrentSensorId(int value) {
+        this.currentSensorId = value;
+    }
 
     protected void onNewSensorTypes(Map<Integer, SensorType> sensorTypes) {
 
@@ -71,15 +70,6 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     protected void addNewSensor(final Sensor sensor, final DatabaseReference.CompletionListener onComplete) {
         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference(getUserSensorPath());
         ref.child(sensor.getSensorId() + "").setValue(sensor.getSensorId(), onComplete);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
-
-        Intent intent = getIntent();
-        currentSensorId = intent.getIntExtra(SENSOR_ID, -1);
-
     }
 
     @Override

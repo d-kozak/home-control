@@ -51,6 +51,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         Intent intent = getIntent();
 
         sensorId = requireNonNegative(intent.getIntExtra(SENSOR_ID, -1));
+        setCurrentSensorId(sensorId);
         sensorType = requireNonNegative(intent.getIntExtra(SENSOR_TYPE, -1));
         String sensorName = requireNonNull(intent.getStringExtra(SENSOR_NAME));
 
