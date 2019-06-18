@@ -1,6 +1,7 @@
 package io.dkozak.house.control.client.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -19,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.dkozak.house.control.client.R;
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
@@ -58,14 +61,34 @@ public class SensorDetailsActivity extends AppCompatActivity {
 
     private void updateChart(List<List<Integer>> values) {
 
+        List<AxisValue> xAxisValues = new ArrayList<>();
+        List<AxisValue> yAxisValues = new ArrayList<>();
         List<PointValue> pointValues = new ArrayList<>();
 
-        for (int i = 0; i < values.size(); i++) {
+        for (int i = 0; i < values.size() && i < 15; i++) {
             List<Integer> value = values.get(i);
             pointValues.add(new PointValue(i, value.get(0)));
+            xAxisValues.add(new AxisValue(i));
+            yAxisValues.add(new AxisValue(value.get(0)));
         }
 
-        chart.setLineChartData(new LineChartData(Arrays.asList(new Line(pointValues))));
+        Line line = new Line(pointValues)
+                .setColor(Color.parseColor("#9C27B0"));
+        LineChartData data = new LineChartData(Arrays.asList(line));
+
+        Axis xAxis = new Axis();
+        xAxis.setValues(xAxisValues);
+        xAxis.setTextSize(16);
+        xAxis.setTextColor(Color.parseColor("#03A9F4"));
+        data.setAxisXBottom(xAxis);
+
+        Axis yAxis = new Axis();
+        yAxis.setValues(yAxisValues);
+        yAxis.setTextSize(16);
+        xAxis.setTextColor(Color.parseColor("#03A9F4"));
+        data.setAxisYLeft(yAxis);
+
+        chart.setLineChartData(data);
     }
 
     @Override
