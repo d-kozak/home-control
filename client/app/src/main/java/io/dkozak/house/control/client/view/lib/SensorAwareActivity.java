@@ -63,27 +63,14 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     }
 
 
+    protected void removeSensor(final Integer sensorId, DatabaseReference.CompletionListener completionListener) {
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference(getUserSensorPath());
+        ref.child(sensorId + "").removeValue(completionListener);
+    }
+
     protected void addNewSensor(final Sensor sensor, final DatabaseReference.CompletionListener onComplete) {
         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference(getUserSensorPath());
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                GenericTypeIndicator<List<Integer>> typeIndicator = new GenericTypeIndicator<List<Integer>>() {
-                };
-                List<Integer> userSensors = dataSnapshot.getValue(typeIndicator);
-                if (userSensors == null)
-                    userSensors = new ArrayList<>();
-                if (!userSensors.contains(sensor.getSensorId())) {
-                    userSensors.add(sensor.getSensorId());
-                    ref.setValue(userSensors, onComplete);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        ref.child(sensor.getSensorId() + "").setValue(sensor.getSensorId(), onComplete);
     }
 
     @Override
@@ -147,20 +134,16 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<List<Integer>> typeIndicator = new GenericTypeIndicator<List<Integer>>() {
-                        };
                         List<Sensor> userSensors = new ArrayList<>();
-                        List<Integer> values = dataSnapshot.getValue(typeIndicator);
-                        if (values != null) {
-                            for (Integer sensorId : values) {
-                                Sensor sensor = sensors.get(sensorId);
-                                if (sensor != null) {
-                                    userSensors.add(sensor);
-                                }
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            Integer sensorId = child.getValue(Integer.class);
+                            Sensor sensor = sensors.get(sensorId);
+                            if (sensor != null) {
+                                userSensors.add(sensor);
                             }
-                            onNewUserSensors(userSensors);
-                            getNonUserSensors(new HashSet<>(userSensors));
                         }
+                        onNewUserSensors(userSensors);
+                        getNonUserSensors(new HashSet<>(userSensors));
                     }
 
                     @Override

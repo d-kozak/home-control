@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import io.dkozak.house.control.client.view.LoginActivity;
 
-public class LoginAwareActivity extends AppCompatActivity {
+public abstract class LoginAwareActivity extends AppCompatActivity {
 
 
     @Override
