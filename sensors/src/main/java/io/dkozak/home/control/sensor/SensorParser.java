@@ -86,7 +86,8 @@ public class SensorParser {
         log.finer("Parsing " + input);
 
         if (input.length() != 3) {
-            log.severe("Invalid length of input message, should be 3");
+            log.severe("Invalid length of input message" + input + ", should be 3");
+            return null;
         }
 
         try {

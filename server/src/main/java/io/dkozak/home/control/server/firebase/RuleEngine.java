@@ -1,20 +1,14 @@
 package io.dkozak.home.control.server.firebase;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.rule.Rule;
 import lombok.extern.java.Log;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static io.dkozak.home.control.server.firebase.DatabaseUtils.childAdded;
-import static io.dkozak.home.control.server.firebase.DatabaseUtils.loadAndUpdate;
-import static io.dkozak.home.control.utils.Streams.streamOf;
 
 @Log
 public class RuleEngine {
@@ -22,50 +16,44 @@ public class RuleEngine {
 
     private FCMMessaging messaging;
 
-    private Map<Rule, ChildEventListener> listeners = new HashMap<>();
 
     public RuleEngine(FirebaseDatabase database, FCMMessaging messaging) {
         this.database = database;
         this.messaging = messaging;
-        initListeners();
     }
 
-    private void initListeners() {
-        DatabaseReference ruleRef = database.getReference("rule");
-        loadAndUpdate(ruleRef, snapshot -> {
-            var rules = streamOf(snapshot.getChildren())
-                    .map(it -> it.getValue(Rule.class))
-                    .collect(Collectors.toSet());
 
-            for (var rule : rules) {
-                setupListenerFor(rule);
-            }
-        });
+    public void newValuesFor(Sensor sensor) {
+        log.info("checking sensor " + sensor);
+        FirebaseDatabase.getInstance()
+                        .getReference("sensor/" + sensor.getIdentifier() + "/rule")
+                        .addListenerForSingleValueEvent(
+                                new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot snapshot) {
+                                        log.info("rules loaded, started checking...");
+                                        for (var userRules : snapshot.getChildren()) {
+                                            for (var rule : userRules.getChildren()) {
+                                                var parsedRule = rule.getValue(Rule.class);
+                                                if (parsedRule != null) {
+                                                    checkRule(parsedRule, sensor.getData());
+                                                } else {
+                                                    log.severe("Could not parse rule at " + parsedRule);
+                                                }
+                                            }
+                                        }
+                                    }
 
-        ruleRef.addChildEventListener(new ChildChangedListener() {
-            @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
-                var rule = snapshot.getValue(Rule.class);
-                setupListenerFor(rule);
-            }
+                                    @Override
+                                    public void onCancelled(DatabaseError error) {
 
-            @Override
-            public void onChildRemoved(DataSnapshot snapshot) {
-                var rule = snapshot.getValue(Rule.class);
-                listeners.remove(rule);
-            }
-        });
+                                    }
+                                }
+                        );
     }
 
-    private void setupListenerFor(Rule rule) {
-        var ruleListener = database.getReference("sensor/" + rule.getSensorId() + "/values")
-                                   .addChildEventListener(childAdded(snapshot -> checkRule(rule, snapshot)));
-        listeners.put(rule, ruleListener);
-        log.info("Listener for rule " + rule + " was added");
-    }
-
-    private void checkRule(Rule rule, DataSnapshot foo) {
-        boolean isTriggered = rule.isTriggered((List<Integer>) foo.getValue(List.class));
+    private void checkRule(Rule rule, List<Integer> newValues) {
+        boolean isTriggered = rule.isTriggered(newValues);
         log.info("Rule " + rule + (isTriggered ? " IS" : " ISN'T") + " triggered");
         if (isTriggered) {
             messaging.sendMessage(rule);

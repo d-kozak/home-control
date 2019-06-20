@@ -95,6 +95,8 @@ public class FirebaseConnector {
                   .add(sensorData.getData());
 
             ref.setValue(sensor, logResultListener);
+
+            ruleEngine.newValuesFor(sensorData);
         });
     }
 }

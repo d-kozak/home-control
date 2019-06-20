@@ -152,8 +152,8 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                     }
                 });
 
-        String userId = getUserId();
-        ruleListener = database.getReference(RULE_PATH + "/" + userId)
+
+        ruleListener = database.getReference(getSensorRulesForUserPath())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -182,6 +182,11 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
                     }
                 });
+    }
+
+    private String getSensorRulesForUserPath() {
+        String userId = getUserId();
+        return "sensor/" + currentSensorId + "/" + RULE_PATH + "/" + userId;
     }
 
     private void getCurrentSensor(Map<Integer, Sensor> sensors) {
@@ -282,12 +287,12 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     protected void saveRule(Rule rule, DatabaseReference.CompletionListener callback) {
         saveDeviceIdIfNecessary();
-        String userId = getUserId();
+        String path = getSensorRulesForUserPath();
         if (rule.getId() != null) {
-            FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + userId + "/" + rule.getId())
+            FirebaseDatabase.getInstance().getReference(path + "/" + rule.getId())
                     .setValue(rule, callback);
         } else {
-            FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + userId)
+            FirebaseDatabase.getInstance().getReference(path)
                     .push()
                     .setValue(rule, callback);
         }
