@@ -159,7 +159,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             Rule rule = child.getValue(Rule.class);
                             rule.setId(child.getKey());
-                            if (rule.getDeviceId().equals(currentDeviceId)) {
+                            if (rule.getDeviceId().equals(currentDeviceId) && rule.getSensorId() == currentSensorId) {
                                 deviceRules.add(rule);
                             }
                         }
