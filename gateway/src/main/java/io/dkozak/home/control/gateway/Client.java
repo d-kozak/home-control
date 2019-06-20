@@ -104,11 +104,10 @@ public class Client {
                     log.info("Exiting...");
                     break;
                 }
-
-                var newData = SensorProcessor.parseData(line);
-                if (newData != null) {
+                var updateRequest = SensorProcessor.parseUpdateRequest(line);
+                if (updateRequest != null) {
                     synchronized (LOCK) {
-                        SensorProcessor.updateSensorData(newData, sensors);
+                        SensorProcessor.updateSensorData(updateRequest, sensors);
                     }
 
                 } else {

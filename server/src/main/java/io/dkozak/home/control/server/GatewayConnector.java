@@ -31,7 +31,16 @@ public class GatewayConnector {
     }
 
     private static void setupSensorUpdateListener(OutputStream outputStream, FirebaseConnector firebase) {
-
+        var writer = new OutputStreamWriter(outputStream);
+        firebase.onUserRequestedSensorUpdate((request) -> {
+            try {
+                String message = String.valueOf(request.getSensorId()) + (request.isNewValue() ? 1 : 0) + '\n';
+                writer.write(message);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                log.severe("Could not send update request to the gateway");
+            }
+        });
     }
 
     private static void loadSensorTypes(InputStream inputStream, FirebaseConnector firebase) throws IOException {

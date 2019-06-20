@@ -1,5 +1,6 @@
 package io.dkozak.home.control.sensor;
 
+import io.dkozak.home.control.sensor.firebase.SensorUpdateRequest;
 import io.dkozak.home.control.sensor.type.*;
 import lombok.extern.java.Log;
 
@@ -8,6 +9,32 @@ import java.util.Random;
 
 @Log
 public class SensorProcessor {
+
+    public static SensorUpdateRequest parseUpdateRequest(String input) {
+        log.info("Parsing " + input);
+
+        if (input.length() != 3) {
+            log.severe("Invalid length of input message, should be 3");
+        }
+
+        try {
+            var sensorId = Integer.parseInt(input.substring(0, 2));
+            boolean newValue = switch (Integer.parseInt(input.substring(2, 3))) {
+                case 0 -> false;
+                case 1 -> true;
+                default -> {
+                    log.severe("Invalid new value, can be only 1 or 0, that is true or false");
+                    throw new NumberFormatException();
+                }
+            };
+
+            return new SensorUpdateRequest(null, sensorId, newValue);
+        } catch (NumberFormatException ex) {
+            log.severe("Failed to parse " + input);
+
+        }
+        return null;
+    }
 
     public static Sensor parseData(String szResponseLine) {
 
@@ -82,41 +109,35 @@ public class SensorProcessor {
     }
 
 
-    public static void updateSensorData(Sensor newValues, List<Sensor> sensors) {
-
-        log.info("Updating io.dkozak.home.control.sensor data: " + newValues.toString());
-
-        for (int nIndex = 0; nIndex < sensors.size(); nIndex++) {
-
-            Sensor mListSensor = sensors.get(nIndex);
-            if ((mListSensor.getSensorClass() == newValues.getSensorClass()) &&
-                    (mListSensor.getIdentifier() == newValues.getIdentifier())) {
-
-                switch (newValues.getSensorClass()) {
+    public static void updateSensorData(SensorUpdateRequest request, List<Sensor> sensors) {
+        log.info("Updating io.dkozak.home.control.sensor data: " + request);
+        for (Sensor sensor : sensors) {
+            if (sensor.getIdentifier() == request.getSensorId()) {
+                switch (sensor.getSensorClass()) {
                     case Blinder:
                     case Temperature:
-                        mListSensor.setValue(newValues.getValue());
+                        log.severe("Cannot update temperature or blinder");
                         break;
 
                     // door
                     case Door:
-                        ((Door) mListSensor).setIsOpen(((Door) newValues).isOpen());
+                        ((Door) sensor).setIsOpen(request.isNewValue());
                         break;
 
                     // Light
                     case Light:
-                        ((Light) mListSensor).setIsOn(((Light) newValues).isOn());
+                        ((Light) sensor).setIsOn(request.isNewValue());
                         break;
 
                     case HVAC:
-                        mListSensor.setValue(newValues.getValue());
-                        ((HVAC) mListSensor).setIsOn(((HVAC) newValues).isOn());
+                        ((HVAC) sensor).setIsOn(request.isNewValue());
                         break;
                 }
+                log.info("Sensor data updated: " + sensor.toString());
+                return;
             }
         }
-
-        log.info("Sensor data updated: " + sensors.toString());
+        log.severe("No sensor was updated!");
     }
 
 
