@@ -1,9 +1,9 @@
 package io.dkozak.home.control.sensor;
 
 public enum SensorClass {
+    Temperature,
     Blinder,
     Door,
-    HVAC,
     Light,
-    Temperature;
+    HVAC;
 }

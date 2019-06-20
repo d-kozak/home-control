@@ -1,6 +1,7 @@
 package io.dkozak.home.control.gateway;
 
 import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.SensorParser;
 import io.dkozak.home.control.sensor.SensorProcessor;
 import io.dkozak.home.control.utils.Result;
 import lombok.extern.java.Log;
@@ -51,7 +52,7 @@ public class Client {
         var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         while (!isCancelled.get()) {
             try {
-                log.info("Sleeping for 3 seconds");
+                log.finer("Sleeping for 3 seconds");
                 Thread.sleep(3000);
 
                 String szMessage;
@@ -61,7 +62,7 @@ public class Client {
                     szMessage = SensorProcessor.generateRandomData(sensors);
                 }
 
-                log.info("Writing data to server: " + szMessage);
+                log.finer("Writing data to server: " + szMessage);
 
                 printWriter.write(szMessage + "\n");
                 printWriter.flush();
@@ -104,7 +105,7 @@ public class Client {
                     log.info("Exiting...");
                     break;
                 }
-                var updateRequest = SensorProcessor.parseUpdateRequest(line);
+                var updateRequest = SensorParser.parseUpdateRequest(line);
                 if (updateRequest != null) {
                     synchronized (LOCK) {
                         SensorProcessor.updateSensorData(updateRequest, sensors);
