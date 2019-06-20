@@ -6,15 +6,25 @@ import java.util.Objects;
 public class Sensor {
     private int sensorId;
     private int sensorType;
+    private String description;
     private List<List<Integer>> values;
 
     public Sensor() {
     }
 
-    public Sensor(int sensorId, int sensorType, List<List<Integer>> values) {
+    public Sensor(int sensorId, int sensorType, String description, List<List<Integer>> values) {
         this.sensorId = sensorId;
         this.sensorType = sensorType;
+        this.description = description;
         this.values = values;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getSensorId() {
@@ -46,13 +56,12 @@ public class Sensor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Sensor sensor = (Sensor) o;
-        return sensorId == sensor.sensorId &&
-                sensorType == sensor.sensorType;
+        return sensorId == sensor.sensorId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sensorId, sensorType);
+        return Objects.hash(sensorId);
     }
 
     @Override
@@ -60,6 +69,7 @@ public class Sensor {
         return "Sensor{" +
                 "sensorId=" + sensorId +
                 ", sensorType=" + sensorType +
+                ", description=" + description +
                 ", values=" + values +
                 '}';
     }

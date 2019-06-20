@@ -13,10 +13,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
@@ -29,11 +27,8 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     public static final String SENSOR_PATH = "sensor";
     private ValueEventListener sensorTypeListener;
     private ValueEventListener sensorListener;
-    private ValueEventListener userSensorsListener;
     private ValueEventListener sensorValuesListener;
 
-
-    private Map<Integer, Sensor> sensors = new HashMap<>();
 
     private int currentSensorId = -1;
 
@@ -111,29 +106,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                                 map.put(sensor.getSensorId(), sensor);
                             }
                         }
-                        sensors = map;
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
-        userSensorsListener = database.getReference(getUserSensorPath())
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        List<Sensor> userSensors = new ArrayList<>();
-                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                            Integer sensorId = child.getValue(Integer.class);
-                            Sensor sensor = sensors.get(sensorId);
-                            if (sensor != null) {
-                                userSensors.add(sensor);
-                            }
-                        }
-                        onNewUserSensors(userSensors);
-                        getNonUserSensors(new HashSet<>(userSensors));
+                        getUserSensors(map);
                     }
 
                     @Override
@@ -163,23 +136,24 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
         }
     }
 
-    private void getNonUserSensors(final Set<Sensor> userSensors) {
-        FirebaseDatabase.getInstance().getReference(SENSOR_PATH)
+    private void getUserSensors(final Map<Integer, Sensor> map) {
+        FirebaseDatabase.getInstance().getReference(getUserSensorPath())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<List<Sensor>> typeIndicator = new GenericTypeIndicator<List<Sensor>>() {
-                        };
-                        List<Sensor> allSensors = dataSnapshot.getValue(typeIndicator);
-                        List<Sensor> filtered = new ArrayList<>();
-                        if (allSensors != null) {
-                            for (Sensor sensor : allSensors) {
-                                if (!userSensors.contains(sensor)) {
-                                    filtered.add(sensor);
-                                }
+                        List<Sensor> userSensors = new ArrayList<>();
+                        List<Integer> userSensorIds = new ArrayList<>();
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            Integer sensorId = child.getValue(Integer.class);
+                            Sensor sensor = map.get(sensorId);
+                            if (sensor != null) {
+                                userSensors.add(sensor);
+                                userSensorIds.add(sensorId);
                             }
                         }
-                        onNewNonUserSensors(filtered);
+                        onNewUserSensors(userSensors);
+                        getNonUserSensors(map, userSensorIds);
+
                     }
 
                     @Override
@@ -187,6 +161,17 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
                     }
                 });
+    }
+
+    private void getNonUserSensors(Map<Integer, Sensor> sensors, List<Integer> userSensorIds) {
+        List<Sensor> nonUserSensors = new ArrayList<>();
+        for (Map.Entry<Integer, Sensor> entry : sensors.entrySet()) {
+            Integer id = entry.getKey();
+            if (!userSensorIds.contains(id)) {
+                nonUserSensors.add(entry.getValue());
+            }
+        }
+        onNewNonUserSensors(nonUserSensors);
     }
 
     @Override
@@ -208,12 +193,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                     .removeEventListener(sensorListener);
             sensorListener = null;
         }
-        if (userSensorsListener != null) {
-            FirebaseDatabase.getInstance()
-                    .getReference(getUserSensorPath())
-                    .removeEventListener(userSensorsListener);
-            userSensorsListener = null;
-        }
+
         if (sensorValuesListener != null) {
             FirebaseDatabase.getInstance().getReference("sensor/" + currentSensorId + "/values")
                     .removeEventListener(sensorValuesListener);

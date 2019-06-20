@@ -1,17 +1,28 @@
 package io.dkozak.house.control.client.model;
 
+import java.util.List;
 import java.util.Objects;
 
 public class SensorType {
     private int id;
     private String name;
+    private List<SensorValue> valueTypes;
 
     public SensorType() {
     }
 
-    public SensorType(int id, String name) {
+    public SensorType(int id, String name, List<SensorValue> valueTypes) {
         this.id = id;
         this.name = name;
+        this.valueTypes = valueTypes;
+    }
+
+    public List<SensorValue> getValueTypes() {
+        return valueTypes;
+    }
+
+    public void setValueTypes(List<SensorValue> valueTypes) {
+        this.valueTypes = valueTypes;
     }
 
     public int getId() {
@@ -35,13 +46,12 @@ public class SensorType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SensorType that = (SensorType) o;
-        return id == that.id &&
-                Objects.equals(name, that.name);
+        return id == that.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id);
     }
 
     @Override
@@ -49,6 +59,7 @@ public class SensorType {
         return "SensorType{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", valueTypes=" + valueTypes +
                 '}';
     }
 }
