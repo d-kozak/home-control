@@ -10,14 +10,14 @@ import java.util.Objects;
 @Data
 public abstract class Sensor {
 
-    protected int sensorClass;
+    protected SensorClass sensorClass;
     protected int identifier;
     protected int value = 0;
     protected String description;
     protected SensorType sensorType;
 
 
-    public Sensor(int sensorClass, int identifier, String description) {
+    public Sensor(SensorClass sensorClass, int identifier, String description) {
         this.sensorClass = sensorClass;
         this.identifier = identifier;
         this.description = description;

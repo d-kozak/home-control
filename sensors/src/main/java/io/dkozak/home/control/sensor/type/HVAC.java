@@ -1,6 +1,7 @@
 package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.SensorClass;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 
 import java.util.List;
@@ -11,15 +12,15 @@ public class HVAC extends Sensor {
 
     private boolean bState = false;
 
-    public HVAC(int sensorClass, int identifier, boolean bState, int temperature, String description) {
-        super(sensorClass, identifier, description);
+    public HVAC(int identifier, boolean bState, int temperature, String description) {
+        super(SensorClass.HVAC, identifier, description);
         this.setIsOn(bState);
         this.setValue(temperature);
     }
 
     @Override
     public FirebaseSensor asFirebaseSensor() {
-        return new FirebaseSensor(sensorClass, identifier, listOf(listOf(value, bState ? 1 : 0)));
+        return new FirebaseSensor(sensorClass.ordinal(), identifier, listOf(listOf(value, bState ? 1 : 0)));
     }
 
     public boolean isOn() {

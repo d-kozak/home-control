@@ -1,4 +1,4 @@
-package io.dkozak.home.control;
+package io.dkozak.home.control.sensor.firebase;
 
 public enum SensorValue {
     INT,

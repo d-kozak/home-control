@@ -1,7 +1,6 @@
 package io.dkozak.home.control.sensor.firebase;
 
 
-import io.dkozak.home.control.SensorValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

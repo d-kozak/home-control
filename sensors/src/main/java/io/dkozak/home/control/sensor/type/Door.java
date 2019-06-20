@@ -1,6 +1,7 @@
 package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
+import io.dkozak.home.control.sensor.SensorClass;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 
 import java.util.List;
@@ -9,14 +10,14 @@ import static io.dkozak.home.control.utils.ListUtils.listOf;
 
 public class Door extends Sensor {
 
-    public Door(int sensorClass, int identifier, boolean bState, String description) {
-        super(sensorClass, identifier, description);
+    public Door(int identifier, boolean bState, String description) {
+        super(SensorClass.Door, identifier, description);
         this.setIsOpen(bState);
     }
 
     @Override
     public FirebaseSensor asFirebaseSensor() {
-        return new FirebaseSensor(sensorClass, identifier, listOf(listOf(value)));
+        return new FirebaseSensor(sensorClass.ordinal(), identifier, listOf(listOf(value)));
     }
 
     @Override
