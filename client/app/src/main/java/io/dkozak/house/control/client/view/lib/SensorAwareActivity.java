@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -12,6 +14,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +26,7 @@ import io.dkozak.house.control.client.model.Rule;
 import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
 import io.dkozak.house.control.client.model.SensorUpdateRequest;
+import io.dkozak.house.control.client.service.MyFirebaseMessagingService;
 
 public abstract class SensorAwareActivity extends LoginAwareActivity {
 
@@ -147,21 +152,19 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                     }
                 });
 
-
-        ruleListener = database.getReference(RULE_PATH)
+        String userId = getUserId();
+        ruleListener = database.getReference(RULE_PATH + "/" + userId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        String currentDeviceId = getDeviceId();
-
-
                         List<Rule> deviceRules = new ArrayList<>();
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             Rule rule = child.getValue(Rule.class);
                             rule.setId(child.getKey());
-                            if (rule.getDeviceId().equals(currentDeviceId) && rule.getSensorId() == currentSensorId) {
+                            if (rule.getSensorId() == currentSensorId) {
                                 deviceRules.add(rule);
                             }
+
                         }
                         onNewDeviceRules(deviceRules);
                         if (currentRuleId != null) {
@@ -183,7 +186,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     private void getCurrentSensor(Map<Integer, Sensor> sensors) {
         Sensor currentSensor = sensors.get(currentSensorId);
-        if (currentSensor != null) {
+        if (currentSensor != null && sensorTypes != null) {
             SensorType sensorType = sensorTypes.get(currentSensor.getSensorType());
             if (sensorType != null) {
                 onNewSensorValues(currentSensor, sensorType);
@@ -278,14 +281,57 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     }
 
     protected void saveRule(Rule rule, DatabaseReference.CompletionListener callback) {
+        saveDeviceIdIfNecessary();
+        String userId = getUserId();
         if (rule.getId() != null) {
-            FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + rule.getId())
+            FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + userId + "/" + rule.getId())
                     .setValue(rule, callback);
         } else {
-            FirebaseDatabase.getInstance().getReference(RULE_PATH)
+            FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + userId)
                     .push()
                     .setValue(rule, callback);
         }
 
+    }
+
+    private void saveDeviceIdIfNecessary() {
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("Sensor Aware activity", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        final String token = task.getResult().getToken();
+                        Log.d("Sensor Aware activity", "Loaded token " + token);
+                        String uid = getUserId();
+                        FirebaseDatabase.getInstance().getReference("user/" + uid + "/devices/" + token)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.getValue() == null) {
+                                            // Log and toast
+                                            Log.d("Sensor Aware activity", "Token " + token + " is not, persisting it");
+                                            MyFirebaseMessagingService.persistToken(token);
+
+                                        }
+                                        Log.d("Sensor Aware activity", "Token " + token + " is already known");
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+                    }
+                });
+    }
+
+    protected String getUserId() {
+        return FirebaseAuth.getInstance().getUid();
     }
 }

@@ -8,17 +8,17 @@ public class Rule {
     private int threshold;
     private Comparison comparison;
     private int offset;
-    private String deviceId;
+    private String userId;
 
     public Rule() {
     }
 
-    public Rule(int sensorId, int threshold, Comparison comparison, int offset, String deviceId) {
+    public Rule(int sensorId, int threshold, Comparison comparison, int offset, String userId) {
         this.sensorId = sensorId;
         this.threshold = threshold;
         this.comparison = comparison;
         this.offset = offset;
-        this.deviceId = deviceId;
+        this.userId = userId;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class Rule {
                 ", threshold=" + threshold +
                 ", comparison=" + comparison +
                 ", offset=" + offset +
-                ", deviceId='" + deviceId + '\'' +
+                ", userId='" + userId + '\'' +
                 '}';
     }
 
@@ -42,12 +42,12 @@ public class Rule {
                 offset == rule.offset &&
                 Objects.equals(id, rule.id) &&
                 comparison == rule.comparison &&
-                Objects.equals(deviceId, rule.deviceId);
+                Objects.equals(userId, rule.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, sensorId, threshold, comparison, offset, deviceId);
+        return Objects.hash(id, sensorId, threshold, comparison, offset, userId);
     }
 
     public String getId() {
@@ -90,11 +90,12 @@ public class Rule {
         this.offset = offset;
     }
 
-    public String getDeviceId() {
-        return deviceId;
+
+    public String getUserId() {
+        return userId;
     }
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

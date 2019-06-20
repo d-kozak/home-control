@@ -72,7 +72,7 @@ public class RuleDetailsActivity extends SensorAwareActivity {
             @Override
             public void onClick(View view) {
                 currentRule.setComparison((Comparison) comparisonSpinner.getSelectedItem());
-                currentRule.setDeviceId(getDeviceId());
+                currentRule.setUserId(getUserId());
                 currentRule.setThreshold(Integer.parseInt(thresholdInput.getText().toString()));
                 currentRule.setOffset((int) indexSpinner.getSelectedItem());
 
