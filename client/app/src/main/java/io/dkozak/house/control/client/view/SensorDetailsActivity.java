@@ -67,6 +67,16 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         statusButton = findViewById(R.id.statusButton);
         statusTxt = findViewById(R.id.statusTextView);
 
+        Button rulesBtn = findViewById(R.id.rulesBtn);
+        rulesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SensorDetailsActivity.this, RulesActivity.class);
+                intent.putExtra(SENSOR_ID, sensorId);
+                startActivity(intent);
+            }
+        });
+
 
         chart = findViewById(R.id.chart);
     }
