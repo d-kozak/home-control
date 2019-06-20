@@ -3,11 +3,9 @@ package io.dkozak.home.control.server.firebase;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.*;
 import com.google.firebase.messaging.FirebaseMessaging;
 import io.dkozak.home.control.sensor.Sensor;
-import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.sensor.firebase.SensorUpdateRequest;
 import io.dkozak.home.control.server.ServerConfig;
 import lombok.extern.java.Log;
@@ -15,6 +13,7 @@ import lombok.extern.java.Log;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -80,23 +79,30 @@ public class FirebaseConnector {
         database.getReference("/request")
                 .addChildEventListener(childAdded(snapshot -> {
                             var request = snapshot.getValue(SensorUpdateRequest.class);
-                    log.finer("Received request " + request);
-                    callback.accept(request);
+                            log.finer("Received request " + request);
+                            callback.accept(request);
                         }
                 ));
     }
 
     public void newSensorData(Sensor sensorData) {
-        DatabaseReference ref = database.getReference("sensor/" + sensorData.getIdentifier());
-        loadAndUpdate(ref, snapshot -> {
-            FirebaseSensor sensor = snapshot.getValue(FirebaseSensor.class);
+        DatabaseReference ref = database.getReference("sensor/" + sensorData.getIdentifier() + "/values");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                var typeIndicator = new GenericTypeIndicator<List<List<Integer>>>() {
+                };
+                var values = snapshot.getValue(typeIndicator);
+                values.add(sensorData.getData());
+                ref.setValue(values, logResultListener);
 
-            sensor.getValues()
-                  .add(sensorData.getData());
+                ruleEngine.newValuesFor(sensorData);
+            }
 
-            ref.setValue(sensor, logResultListener);
+            @Override
+            public void onCancelled(DatabaseError error) {
 
-            ruleEngine.newValuesFor(sensorData);
+            }
         });
     }
 }
