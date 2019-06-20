@@ -20,6 +20,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.dkozak.home.control.server.firebase.DatabaseUtils.childAdded;
 import static io.dkozak.home.control.server.firebase.DatabaseUtils.loadAndUpdate;
 import static io.dkozak.home.control.utils.Streams.streamOf;
 
@@ -77,33 +78,30 @@ public class FirebaseConnector {
 
     public void onUserRequestedSensorUpdate(Consumer<SensorUpdateRequest> callback) {
         database.getReference("/request")
-                .addChildEventListener(new ChildAddedListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
-                        var request = snapshot.getValue(SensorUpdateRequest.class);
+                .addChildEventListener(childAdded(snapshot -> {
+                            var request = snapshot.getValue(SensorUpdateRequest.class);
+                            database.getReference("user/" + request.getUser() + "/sensors")
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot snapshot) {
+                                            var typeIndicator = new GenericTypeIndicator<List<Integer>>() {
+                                            };
+                                            var userSensors = snapshot.getValue(typeIndicator);
+                                            if (userSensors.contains(request.getSensorId())) {
+                                                callback.accept(request);
+                                            } else {
+                                                log.severe("User " + request.getUser() + " tried to update a sensor, which is not his");
+                                            }
 
-                        database.getReference("user/" + request.getUser() + "/sensors")
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot snapshot) {
-                                        var typeIndicator = new GenericTypeIndicator<List<Integer>>() {
-                                        };
-                                        var userSensors = snapshot.getValue(typeIndicator);
-                                        if (userSensors.contains(request.getSensorId())) {
-                                            callback.accept(request);
-                                        } else {
-                                            log.severe("User " + request.getUser() + " tried to update a sensor, which is not his");
                                         }
 
-                                    }
+                                        @Override
+                                        public void onCancelled(DatabaseError error) {
 
-                                    @Override
-                                    public void onCancelled(DatabaseError error) {
-
-                                    }
-                                });
-                    }
-                });
+                                        }
+                                    });
+                        }
+                ));
     }
 
     public void newSensorData(Sensor sensorData) {
