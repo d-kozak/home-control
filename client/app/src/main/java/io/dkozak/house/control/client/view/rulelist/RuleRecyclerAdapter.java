@@ -40,9 +40,9 @@ public class RuleRecyclerAdapter extends RecyclerView.Adapter<RuleRecyclerAdapte
     @Override
     public void onBindViewHolder(@NonNull RuleViewHolder holder, int position) {
         final Rule rule = rules.get(position);
-        holder.index.setText(rule.offset + "");
-        holder.comparison.setText(rule.comparison.toString());
-        holder.value.setText(rule.threshold + "");
+        holder.index.setText(rule.getOffset() + "");
+        holder.comparison.setText(rule.getComparison().toString());
+        holder.value.setText(rule.getThreshold() + "");
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

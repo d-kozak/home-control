@@ -2,6 +2,9 @@ package io.dkozak.house.control.client.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -9,7 +12,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.Arrays;
 
@@ -29,6 +37,7 @@ public class RuleDetailsActivity extends SensorAwareActivity {
     private TextView thresholdInput;
 
     private Button confirmButton;
+    private String ruleId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +59,10 @@ public class RuleDetailsActivity extends SensorAwareActivity {
         int sensorId = requireNonNegative(intent.getIntExtra(SENSOR_ID, -1));
         setCurrentSensorId(sensorId);
 
-        final String ruleId = intent.getStringExtra(RULE_ID);
+        ruleId = intent.getStringExtra(RULE_ID);
         if (ruleId != null) {
-            Toast.makeText(this, "Editing rule " + ruleId, Toast.LENGTH_LONG).show();
             setCurrentRuleId(ruleId);
         } else {
-            Toast.makeText(this, "Creating new rule", Toast.LENGTH_LONG).show();
             onRuleDetails(new Rule(sensorId, 0, Comparison.EQ, 0, getDeviceId()));
         }
 
@@ -64,12 +71,18 @@ public class RuleDetailsActivity extends SensorAwareActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                currentRule.comparison = (Comparison) comparisonSpinner.getSelectedItem();
-                currentRule.deviceId = getDeviceId();
-                currentRule.threshold = Integer.parseInt(thresholdInput.getText().toString());
-                currentRule.offset = (int) indexSpinner.getSelectedItem();
+                currentRule.setComparison((Comparison) comparisonSpinner.getSelectedItem());
+                currentRule.setDeviceId(getDeviceId());
+                currentRule.setThreshold(Integer.parseInt(thresholdInput.getText().toString()));
+                currentRule.setOffset((int) indexSpinner.getSelectedItem());
 
-                Toast.makeText(RuleDetailsActivity.this, "About to create rule " + currentRule, Toast.LENGTH_LONG).show();
+                saveRule(currentRule, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                        Toast.makeText(RuleDetailsActivity.this, "Rule saved", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                });
             }
         });
     }
@@ -78,8 +91,36 @@ public class RuleDetailsActivity extends SensorAwareActivity {
     protected void onRuleDetails(Rule rule) {
         this.currentRule = rule;
 
-        this.indexSpinner.setSelection(rule.offset);
-        this.comparisonSpinner.setSelection(rule.comparison.ordinal());
-        this.thresholdInput.setText(rule.threshold + "");
+        this.indexSpinner.setSelection(rule.getOffset());
+        this.comparisonSpinner.setSelection(rule.getComparison().ordinal());
+        this.thresholdInput.setText(rule.getThreshold() + "");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (ruleId != null) {
+            MenuInflater menuInflater = getMenuInflater();
+            menuInflater.inflate(R.menu.sensor_details_menu, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete:
+                if (ruleId != null) {
+                    removeRule(ruleId, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                            Toast.makeText(RuleDetailsActivity.this, "Rule removed", Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    });
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

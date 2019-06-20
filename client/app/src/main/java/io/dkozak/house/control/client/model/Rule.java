@@ -3,12 +3,12 @@ package io.dkozak.house.control.client.model;
 import java.util.Objects;
 
 public class Rule {
-    public String id;
-    public int sensorId;
-    public int threshold;
-    public Comparison comparison;
-    public int offset;
-    public String deviceId;
+    private String id;
+    private int sensorId;
+    private int threshold;
+    private Comparison comparison;
+    private int offset;
+    private String deviceId;
 
     public Rule() {
     }

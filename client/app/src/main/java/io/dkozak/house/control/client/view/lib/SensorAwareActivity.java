@@ -85,6 +85,10 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
         ref.child(sensorId + "").removeValue(completionListener);
     }
 
+    protected void removeRule(final String ruleId, DatabaseReference.CompletionListener completionListener) {
+        FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + ruleId).removeValue(completionListener);
+    }
+
     protected void addNewSensor(final Sensor sensor, final DatabaseReference.CompletionListener onComplete) {
         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference(getUserSensorPath());
         ref.child(sensor.getSensorId() + "").setValue(sensor.getSensorId(), onComplete);
@@ -154,15 +158,15 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                         List<Rule> deviceRules = new ArrayList<>();
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             Rule rule = child.getValue(Rule.class);
-                            rule.id = child.getKey();
-                            if (rule.deviceId.equals(currentDeviceId)) {
+                            rule.setId(child.getKey());
+                            if (rule.getDeviceId().equals(currentDeviceId)) {
                                 deviceRules.add(rule);
                             }
                         }
                         onNewDeviceRules(deviceRules);
                         if (currentRuleId != null) {
                             for (Rule rule : deviceRules) {
-                                if (rule.id.equals(currentRuleId)) {
+                                if (rule.getId().equals(currentRuleId)) {
                                     onRuleDetails(rule);
                                     break;
                                 }
@@ -271,5 +275,17 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
         FirebaseDatabase.getInstance().getReference("request")
                 .push()
                 .setValue(request, callback);
+    }
+
+    protected void saveRule(Rule rule, DatabaseReference.CompletionListener callback) {
+        if (rule.getId() != null) {
+            FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + rule.getId())
+                    .setValue(rule, callback);
+        } else {
+            FirebaseDatabase.getInstance().getReference(RULE_PATH)
+                    .push()
+                    .setValue(rule, callback);
+        }
+
     }
 }
