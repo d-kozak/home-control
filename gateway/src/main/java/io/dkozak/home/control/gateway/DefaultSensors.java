@@ -2,17 +2,18 @@ package io.dkozak.home.control.gateway;
 
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.type.*;
-import io.dkozak.home.control.utils.Log;
+import lombok.extern.java.Log;
 
 import java.util.List;
 
 import static io.dkozak.home.control.utils.ListUtils.listOf;
 
+@Log
 public class DefaultSensors {
 
     static List<Sensor> get() {
 
-        Log.message("Initializing io.dkozak.home.control.sensor list");
+        log.info("Initializing io.dkozak.home.control.sensor list");
 
         var sensors = listOf(
                 new Temperature(1, 20, "Room 1"),
@@ -36,7 +37,7 @@ public class DefaultSensors {
                 new HVAC(15, true, 20, "Room 3")
         );
 
-        Log.message("Sensor list: " + sensors.toString());
+        log.info("Sensor list: " + sensors.toString());
         return sensors;
     }
 }

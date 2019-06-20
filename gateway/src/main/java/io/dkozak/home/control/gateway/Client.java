@@ -2,8 +2,8 @@ package io.dkozak.home.control.gateway;
 
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.SensorProcessor;
-import io.dkozak.home.control.utils.Log;
 import io.dkozak.home.control.utils.Result;
+import lombok.extern.java.Log;
 
 import java.io.*;
 import java.net.Socket;
@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import static io.dkozak.home.control.gateway.GatewayConfig.HOST;
 import static io.dkozak.home.control.gateway.GatewayConfig.PORT_NUMBER;
 
+@Log
 public class Client {
 
     public static void startCommunication(CopyOnWriteArrayList<Sensor> sensors) {
@@ -30,7 +31,7 @@ public class Client {
             listenToServer(sensors, bufferedReader, isCancelled);
 
         } catch (IOException e) {
-            Log.message("IO exception");
+            log.info("IO exception");
             e.printStackTrace();
         }
     }
@@ -40,7 +41,7 @@ public class Client {
         var firebaseSensors = sensors.stream()
                                      .map(Sensor::asFirebaseSensor)
                                      .collect(Collectors.toSet());
-        Log.message("Sending sensors : " + firebaseSensors);
+        log.info("Sending sensors : " + firebaseSensors);
         objectOutputStream.writeObject(firebaseSensors);
     }
 
@@ -48,17 +49,17 @@ public class Client {
         var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         while (!isCancelled.get()) {
             try {
-                Log.message("Sleeping for 3 seconds");
+                log.info("Sleeping for 3 seconds");
                 Thread.sleep(3000);
 
                 // Generate random event
                 String szMessage = SensorProcessor.generateRandomData(sensors);
-                Log.message("Writing data to server: " + szMessage);
+                log.info("Writing data to server: " + szMessage);
 
                 printWriter.write(szMessage + "\n");
                 printWriter.flush();
             } catch (InterruptedException ex) {
-                Log.message("Interrupted");
+                log.info("Interrupted");
                 ex.printStackTrace();
                 isCancelled.set(true);
                 return new Result<>(null, ex);
@@ -70,14 +71,14 @@ public class Client {
 
     static Socket connectToServer(String host, int portNumber) {
         try {
-            Log.message("Opening socket to server: " + host + " " + portNumber);
+            log.info("Opening socket to server: " + host + " " + portNumber);
             return new Socket(host, portNumber);
         } catch (UnknownHostException e) {
-            Log.message("Don't know about host " + host);
+            log.info("Don't know about host " + host);
             e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IOException e) {
-            Log.message("Couldn't get I/O for the connection to the host " + host);
+            log.info("Couldn't get I/O for the connection to the host " + host);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -87,10 +88,10 @@ public class Client {
         try {
             String line;
             while (!isCancelled.get() && (line = inputStream.readLine()) != null) {
-                Log.message("Received: " + line);
+                log.info("Received: " + line);
 
                 if (line.equals("exit")) {
-                    Log.message("Exiting...");
+                    log.info("Exiting...");
                     break;
                 }
 
@@ -98,14 +99,14 @@ public class Client {
                 if (newData != null) {
                     SensorProcessor.updateSensorData(newData, sensors);
                 } else {
-                    Log.message("Could not parse received data: " + line);
+                    log.info("Could not parse received data: " + line);
                 }
 
             }
             isCancelled.set(true);
             return new Result<>("OK", null);
         } catch (IOException ex) {
-            Log.message("IO exception");
+            log.info("IO exception");
             ex.printStackTrace();
             return new Result<>(null, ex);
         }

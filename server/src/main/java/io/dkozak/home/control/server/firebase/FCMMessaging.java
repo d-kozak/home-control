@@ -4,9 +4,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import io.dkozak.home.control.sensor.rule.Rule;
-import io.dkozak.home.control.utils.Log;
 import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
 
+@Log
 @AllArgsConstructor
 public class FCMMessaging {
 
@@ -20,9 +21,9 @@ public class FCMMessaging {
                                  .putData("Sensor ID", rule.sensorId + "")
                                  .setToken(token)
                                  .build();
-            Log.message("Sending message: " + message);
+            log.info("Sending message: " + message);
             var response = messaging.send(message);
-            Log.message("Received response: " + response);
+            log.info("Received response: " + response);
         } catch (FirebaseMessagingException ex) {
             throw new RuntimeException(ex);
         }

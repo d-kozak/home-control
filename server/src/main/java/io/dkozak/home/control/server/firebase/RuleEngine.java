@@ -5,7 +5,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import io.dkozak.home.control.sensor.rule.Rule;
-import io.dkozak.home.control.utils.Log;
+import lombok.extern.java.Log;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +16,7 @@ import static io.dkozak.home.control.server.firebase.DatabaseUtils.childAdded;
 import static io.dkozak.home.control.server.firebase.DatabaseUtils.loadAndUpdate;
 import static io.dkozak.home.control.utils.Streams.streamOf;
 
+@Log
 public class RuleEngine {
     private FirebaseDatabase database;
 
@@ -60,12 +61,12 @@ public class RuleEngine {
         var ruleListener = database.getReference("sensor/" + rule.getSensorId() + "/values")
                                    .addChildEventListener(childAdded(snapshot -> checkRule(rule, snapshot)));
         listeners.put(rule, ruleListener);
-        Log.message("Listener for rule " + rule + " was added");
+        log.info("Listener for rule " + rule + " was added");
     }
 
     private void checkRule(Rule rule, DataSnapshot foo) {
         boolean isTriggered = rule.isTriggered((List<Integer>) foo.getValue(List.class));
-        Log.message("Rule " + rule + (isTriggered ? " IS" : " ISN'T") + " triggered");
+        log.info("Rule " + rule + (isTriggered ? " IS" : " ISN'T") + " triggered");
         if (isTriggered) {
             messaging.sendMessage(rule);
         }

@@ -9,7 +9,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.server.ServerConfig;
-import io.dkozak.home.control.utils.Log;
+import lombok.extern.java.Log;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import static io.dkozak.home.control.server.firebase.DatabaseUtils.loadAndUpdate;
 import static io.dkozak.home.control.utils.Streams.streamOf;
 
+@Log
 public class FirebaseConnector {
 
     private final FirebaseApp app;
@@ -29,9 +30,9 @@ public class FirebaseConnector {
 
     private final DatabaseReference.CompletionListener logResultListener = (error, __) -> {
         if (error == null) {
-            Log.message("update done");
+            log.info("update done");
         } else {
-            Log.message("failed");
+            log.info("failed");
             error.toException()
                  .printStackTrace();
         }
@@ -61,16 +62,15 @@ public class FirebaseConnector {
             var oldData = streamOf(snapshot.getChildren())
                     .map(item -> item.getValue(clazz))
                     .collect(Collectors.toSet());
-            Log.message("Old elements are " + oldData);
+            log.info("Old elements are " + oldData);
 
             var allData = new TreeSet<>(oldData);
             allData.addAll(newData);
 
-            Log.message("Persisting new elements: " + newData);
+            log.info("Persisting new elements: " + newData);
             ref.setValue(new ArrayList<>(allData), logResultListener);
         });
     }
-
 
 
     public void newSensorData(Sensor sensorData) {

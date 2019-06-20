@@ -1,16 +1,17 @@
 package io.dkozak.home.control.sensor;
 
 import io.dkozak.home.control.sensor.type.*;
-import io.dkozak.home.control.utils.Log;
+import lombok.extern.java.Log;
 
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Log
 public class SensorProcessor {
 
     public static Sensor parseData(String szResponseLine) {
 
-        Log.message("Parsing data: " + szResponseLine);
+        log.info("Parsing data: " + szResponseLine);
 
         if (szResponseLine == null || szResponseLine.length() < 5) {
             return null;
@@ -83,7 +84,7 @@ public class SensorProcessor {
 
     public static void updateSensorData(Sensor newValues, CopyOnWriteArrayList<Sensor> sensors) {
 
-        Log.message("Updating io.dkozak.home.control.sensor data: " + newValues.toString());
+        log.info("Updating io.dkozak.home.control.sensor data: " + newValues.toString());
 
         for (int nIndex = 0; nIndex < sensors.size(); nIndex++) {
 
@@ -116,13 +117,13 @@ public class SensorProcessor {
             }
         }
 
-        Log.message("Sensor data updated: " + sensors.toString());
+        log.info("Sensor data updated: " + sensors.toString());
     }
 
 
     public static String generateRandomData(CopyOnWriteArrayList<Sensor> sensors) {
 
-        Log.message("Generating random data");
+        log.info("Generating random data");
 
         Random m = new Random();
         int nNextSensorPos = m.nextInt(sensors.size() - 1);
@@ -186,7 +187,7 @@ public class SensorProcessor {
                 break;
         }
 
-        Log.message("Generated data: " + mSensor.toString());
+        log.info("Generated data: " + mSensor.toString());
 
         return mSensor.toString();
     }
