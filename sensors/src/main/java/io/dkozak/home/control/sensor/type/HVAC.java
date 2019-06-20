@@ -2,7 +2,6 @@ package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.SensorClass;
-import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 
 import java.util.List;
 
@@ -16,11 +15,6 @@ public class HVAC extends Sensor {
         super(SensorClass.HVAC, identifier, description);
         this.setIsOn(bState);
         this.setValue(temperature);
-    }
-
-    @Override
-    public FirebaseSensor asFirebaseSensor() {
-        return new FirebaseSensor(sensorClass.ordinal(), identifier, listOf(listOf(value, bState ? 1 : 0)));
     }
 
     public boolean isOn() {

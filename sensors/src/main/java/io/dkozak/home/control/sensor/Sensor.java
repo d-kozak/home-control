@@ -1,11 +1,12 @@
 package io.dkozak.home.control.sensor;
 
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
-import io.dkozak.home.control.sensor.firebase.SensorType;
 import lombok.Data;
 
 import java.util.List;
 import java.util.Objects;
+
+import static io.dkozak.home.control.utils.ListUtils.listOf;
 
 @Data
 public abstract class Sensor {
@@ -14,7 +15,6 @@ public abstract class Sensor {
     protected int identifier;
     protected int value = 0;
     protected String description;
-    protected SensorType sensorType;
 
 
     public Sensor(SensorClass sensorClass, int identifier, String description) {
@@ -23,7 +23,9 @@ public abstract class Sensor {
         this.description = description;
     }
 
-    public abstract FirebaseSensor asFirebaseSensor();
+    public FirebaseSensor asFirebaseSensor() {
+        return new FirebaseSensor(sensorClass.ordinal(), identifier, description, listOf(getData()));
+    }
 
     public abstract List<Integer> getData();
 

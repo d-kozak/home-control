@@ -29,13 +29,13 @@ public class SensorProcessor {
             case 0:
                 String szTemperature = szResponseLine.substring(4, 6);
                 int nSensorTemperature = Integer.parseInt(szTemperature);
-                mSensor = new Temperature(nSensorClass, nSensorId, nSensorTemperature, "");
+                mSensor = new Temperature(nSensorId, nSensorTemperature, "");
                 break;
 
             case 1:
                 String szBlinderPercentage = szResponseLine.substring(4, 7);
                 int nBlinderPercentage = Integer.parseInt(szBlinderPercentage);
-                mSensor = new Blinder(nSensorClass, nSensorId, nBlinderPercentage, "");
+                mSensor = new Blinder(nSensorId, nBlinderPercentage, "");
                 break;
 
             case 2:
@@ -47,7 +47,7 @@ public class SensorProcessor {
                     bIsDoorOpen = true;
                 }
 
-                mSensor = new Door(nSensorClass, nSensorId, bIsDoorOpen, "");
+                mSensor = new Door(nSensorId, bIsDoorOpen, "");
                 break;
 
             case 3:
@@ -59,7 +59,7 @@ public class SensorProcessor {
                     bIsLightOn = true;
                 }
 
-                mSensor = new Light(nSensorClass, nSensorId, bIsLightOn, "");
+                mSensor = new Light(nSensorId, bIsLightOn, "");
                 break;
 
             case 4:
@@ -73,7 +73,7 @@ public class SensorProcessor {
                     bIsHVACOn = true;
                 }
 
-                mSensor = new HVAC(nSensorClass, nSensorId, bIsHVACOn, nHVACTemperature, "");
+                mSensor = new HVAC(nSensorId, bIsHVACOn, nHVACTemperature, "");
                 break;
         }
 
@@ -91,7 +91,8 @@ public class SensorProcessor {
             if ((mListSensor.getSensorClass() == newValues.getSensorClass()) &&
                     (mListSensor.getIdentifier() == newValues.getIdentifier())) {
 
-                switch (newValues.getSensorClass()) {
+                switch (newValues.getSensorClass()
+                                 .ordinal()) {
                     case 0:
                     case 1:
                         mListSensor.setValue(newValues.getValue());
@@ -127,7 +128,8 @@ public class SensorProcessor {
         int nNextSensorPos = m.nextInt(sensors.size() - 1);
 
         Sensor mSensor = sensors.get(nNextSensorPos);
-        switch (mSensor.getSensorClass()) {
+        switch (mSensor.getSensorClass()
+                       .ordinal()) {
 
             // Temperature io.dkozak.home.control.sensor
             case 0:

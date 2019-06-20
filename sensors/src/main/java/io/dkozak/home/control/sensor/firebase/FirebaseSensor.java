@@ -16,6 +16,7 @@ import java.util.List;
 public class FirebaseSensor implements Serializable, Comparable<FirebaseSensor> {
     private int sensorType;
     private int sensorId;
+    private String description;
     private List<List<Integer>> values;
 
     @Override

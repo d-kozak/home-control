@@ -2,7 +2,6 @@ package io.dkozak.home.control.sensor.type;
 
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.SensorClass;
-import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 
 import java.util.List;
 
@@ -13,11 +12,6 @@ public class Blinder extends Sensor {
     public Blinder(int identifier, int percentage, String description) {
         super(SensorClass.Blinder, identifier, description);
         this.setValue(percentage);
-    }
-
-    @Override
-    public FirebaseSensor asFirebaseSensor() {
-        return new FirebaseSensor(sensorClass.ordinal(), identifier, listOf(listOf(value)));
     }
 
     @Override
