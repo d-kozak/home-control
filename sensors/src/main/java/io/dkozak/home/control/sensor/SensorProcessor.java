@@ -13,8 +13,8 @@ import java.util.Random;
 public class SensorProcessor {
 
 
-    public static void updateSensorData(SensorUpdateRequest request, List<Sensor> sensors) {
-        log.info("Updating io.dkozak.home.control.sensor data: " + request);
+    public static Sensor updateSensorData(SensorUpdateRequest request, List<Sensor> sensors) {
+        log.finer("Updating io.dkozak.home.control.sensor data: " + request);
         for (Sensor sensor : sensors) {
             if (sensor.getIdentifier() == request.getSensorId()) {
                 switch (sensor.getSensorClass()) {
@@ -37,11 +37,12 @@ public class SensorProcessor {
                         ((HVAC) sensor).setIsOn(request.isNewValue());
                         break;
                 }
-                log.info("Sensor data updated: " + sensor.toString());
-                return;
+                log.finer("Sensor data updated: " + sensor.toString());
+                return sensor;
             }
         }
         log.severe("No sensor was updated!");
+        return null;
     }
 
 

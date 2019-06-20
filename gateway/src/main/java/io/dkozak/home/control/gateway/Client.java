@@ -31,7 +31,7 @@ public class Client {
 
             sendSensorInfo(sensors, outputStream);
             CompletableFuture.supplyAsync(() -> simulateSensors(sensors, outputStream, isCancelled));
-            listenToServer(sensors, bufferedReader, isCancelled);
+            listenToServer(sensors, bufferedReader, outputStream, isCancelled);
 
         } catch (IOException e) {
             log.info("IO exception");
@@ -95,24 +95,33 @@ public class Client {
         }
     }
 
-    static Result<String, Exception> listenToServer(List<Sensor> sensors, BufferedReader inputStream, AtomicBoolean isCancelled) {
+    static Result<String, Exception> listenToServer(List<Sensor> sensors, BufferedReader inputStream, OutputStream outputStream, AtomicBoolean isCancelled) {
+        var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         try {
             String line;
             while (!isCancelled.get() && (line = inputStream.readLine()) != null) {
-                log.info("Received: " + line);
+                log.finer("Received: " + line);
 
                 if (line.equals("exit")) {
-                    log.info("Exiting...");
+                    log.finer("Exiting...");
                     break;
                 }
                 var updateRequest = SensorParser.parseUpdateRequest(line);
                 if (updateRequest != null) {
                     synchronized (LOCK) {
-                        SensorProcessor.updateSensorData(updateRequest, sensors);
+                        Sensor updatedSensor = SensorProcessor.updateSensorData(updateRequest, sensors);
+                        if (updatedSensor != null) {
+                            String message = SensorParser.serialize(updatedSensor);
+                            if (message != null) {
+                                log.finer("Sending update back: " + message);
+                                printWriter.write(updatedSensor + "\n");
+                                printWriter.flush();
+                            }
+                        }
                     }
 
                 } else {
-                    log.info("Could not parse received data: " + line);
+                    log.severe("Could not parse received data: " + line);
                 }
 
             }
