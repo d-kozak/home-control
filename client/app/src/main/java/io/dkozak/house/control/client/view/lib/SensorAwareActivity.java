@@ -20,6 +20,7 @@ import java.util.Map;
 
 import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
+import io.dkozak.house.control.client.model.SensorUpdateRequest;
 
 public abstract class SensorAwareActivity extends LoginAwareActivity {
 
@@ -202,5 +203,13 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     private String getUserSensorPath() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         return "user/" + currentUser.getUid() + "/sensors";
+    }
+
+    protected void sensorUpdateRequest(Sensor currentSensor, boolean newValue, DatabaseReference.CompletionListener callback) {
+        String user = FirebaseAuth.getInstance().getUid();
+        SensorUpdateRequest request = new SensorUpdateRequest(user, currentSensor.getSensorId(), newValue);
+        FirebaseDatabase.getInstance().getReference("request")
+                .push()
+                .setValue(request, callback);
     }
 }

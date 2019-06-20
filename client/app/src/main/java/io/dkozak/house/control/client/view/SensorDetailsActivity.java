@@ -3,6 +3,7 @@ package io.dkozak.house.control.client.view;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -100,17 +101,18 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         sensorNameTxt.setText(currentSensor.getDescription());
         sensorTypeTxt.setText(sensorType.getName());
 
-        if (sensorType.hasBooleanValue()) {
-            statusButton.setVisibility(View.VISIBLE);
-            statusTxt.setVisibility(View.VISIBLE);
-        } else {
-            statusButton.setVisibility(View.GONE);
-            statusTxt.setVisibility(View.GONE);
-        }
-
-
         List<List<Integer>> values = currentSensor.getValues();
+        if (values.isEmpty()) {
+            Log.e("Sensor details", "Empty sensor values");
+            return;
+        }
+        List<Integer> lastValues = values.get(values.size() - 1);
 
+        renderBooleanConfig(currentSensor, sensorType, lastValues);
+        renderChart(values);
+    }
+
+    private void renderChart(List<List<Integer>> values) {
         List<AxisValue> xAxisValues = new ArrayList<>();
         List<AxisValue> yAxisValues = new ArrayList<>();
         List<PointValue> pointValues = new ArrayList<>();
@@ -140,5 +142,50 @@ public class SensorDetailsActivity extends SensorAwareActivity {
 
         chart.setLineChartData(data);
     }
+
+    private void renderBooleanConfig(final Sensor currentSensor, SensorType sensorType, List<Integer> lastValues) {
+        int booleanValueIndex = sensorType.getBoolValueIndex();
+        if (booleanValueIndex != -1) {
+            statusButton.setVisibility(View.VISIBLE);
+            statusTxt.setVisibility(View.VISIBLE);
+
+            if (booleanValueIndex >= lastValues.size()) {
+                Log.e("Sensor details", "Could not extract last boolean at index " + booleanValueIndex + " value from " + lastValues);
+                return;
+            }
+            boolean currentValue = false;
+            switch (lastValues.get(booleanValueIndex)) {
+                case 0:
+                    currentValue = false;
+                    break;
+                case 1:
+                    currentValue = true;
+                    break;
+                default:
+                    Log.e("Sensor details", "Could not convert last value, should be 1 or 0, was " + lastValues.get(booleanValueIndex));
+                    break;
+            }
+
+            final boolean currentValueFinal = currentValue;
+            statusTxt.setText(currentValue ? "ON" : "OFF");
+            statusButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sensorUpdateRequest(currentSensor, !currentValueFinal, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                            Toast.makeText(SensorDetailsActivity.this, "Sensor updated", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            });
+
+        } else {
+            statusButton.setVisibility(View.GONE);
+            statusTxt.setVisibility(View.GONE);
+        }
+    }
+
+
 
 }

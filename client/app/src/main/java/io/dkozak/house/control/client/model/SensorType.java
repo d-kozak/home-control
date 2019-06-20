@@ -63,11 +63,11 @@ public class SensorType {
                 '}';
     }
 
-    public boolean hasBooleanValue() {
-        for (SensorValue value : valueTypes) {
-            if (value == SensorValue.BOOL)
-                return true;
+    public int getBoolValueIndex() {
+        for (int i = 0; i < valueTypes.size(); i++) {
+            if (valueTypes.get(i) == SensorValue.BOOL)
+                return i;
         }
-        return false;
+        return -1;
     }
 }
