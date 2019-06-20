@@ -19,7 +19,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setValue("", new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                        Log.d("FCM", "Token " + token + " was sent to the server");
+                        if (databaseError == null)
+                            Log.d("FCM", "Token " + token + " was sent to the server");
+                        else Log.d("FCM", "Sending token failed");
                     }
                 });
     }
