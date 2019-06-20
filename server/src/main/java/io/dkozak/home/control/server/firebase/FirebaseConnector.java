@@ -3,7 +3,8 @@ package io.dkozak.home.control.server.firebase;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.database.*;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
@@ -14,7 +15,6 @@ import lombok.extern.java.Log;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -33,9 +33,9 @@ public class FirebaseConnector {
 
     private final DatabaseReference.CompletionListener logResultListener = (error, __) -> {
         if (error == null) {
-            log.info("update done");
+            log.finer("update done");
         } else {
-            log.info("failed");
+            log.severe("failed");
             error.toException()
                  .printStackTrace();
         }
@@ -80,26 +80,8 @@ public class FirebaseConnector {
         database.getReference("/request")
                 .addChildEventListener(childAdded(snapshot -> {
                             var request = snapshot.getValue(SensorUpdateRequest.class);
-                            database.getReference("user/" + request.getUser() + "/sensors")
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot snapshot) {
-                                            var typeIndicator = new GenericTypeIndicator<List<Integer>>() {
-                                            };
-                                            var userSensors = snapshot.getValue(typeIndicator);
-                                            if (userSensors.contains(request.getSensorId())) {
-                                                callback.accept(request);
-                                            } else {
-                                                log.severe("User " + request.getUser() + " tried to update a sensor, which is not his");
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError error) {
-
-                                        }
-                                    });
+                    log.finer("Received request " + request);
+                    callback.accept(request);
                         }
                 ));
     }

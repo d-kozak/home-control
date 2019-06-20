@@ -35,7 +35,9 @@ public class GatewayConnector {
         firebase.onUserRequestedSensorUpdate((request) -> {
             try {
                 String message = String.valueOf(request.getSensorId()) + (request.isNewValue() ? 1 : 0) + '\n';
+                log.finer("Sending message " + message);
                 writer.write(message);
+                writer.flush();
             } catch (IOException ex) {
                 ex.printStackTrace();
                 log.severe("Could not send update request to the gateway");
@@ -62,7 +64,7 @@ public class GatewayConnector {
 
         String message;
         while ((message = reader.readLine()) != null) {
-            log.info("Received: " + message);
+            log.finer("Received: " + message);
 
             var sensorData = SensorParser.parseData(message);
             if (sensorData == null) {

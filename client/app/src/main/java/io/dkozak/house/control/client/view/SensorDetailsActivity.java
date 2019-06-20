@@ -184,7 +184,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
                     sensorUpdateRequest(currentSensor, !currentValueFinal, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                            Toast.makeText(SensorDetailsActivity.this, "Sensor updated", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SensorDetailsActivity.this, "Request sent", Toast.LENGTH_LONG).show();
                         }
                     });
                 }
