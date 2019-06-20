@@ -3,8 +3,8 @@ package io.dkozak.home.control.sensor;
 import io.dkozak.home.control.sensor.type.*;
 import lombok.extern.java.Log;
 
+import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Log
 public class SensorProcessor {
@@ -82,7 +82,7 @@ public class SensorProcessor {
     }
 
 
-    public static void updateSensorData(Sensor newValues, CopyOnWriteArrayList<Sensor> sensors) {
+    public static void updateSensorData(Sensor newValues, List<Sensor> sensors) {
 
         log.info("Updating io.dkozak.home.control.sensor data: " + newValues.toString());
 
@@ -92,24 +92,23 @@ public class SensorProcessor {
             if ((mListSensor.getSensorClass() == newValues.getSensorClass()) &&
                     (mListSensor.getIdentifier() == newValues.getIdentifier())) {
 
-                switch (newValues.getSensorClass()
-                                 .ordinal()) {
-                    case 0:
-                    case 1:
+                switch (newValues.getSensorClass()) {
+                    case Blinder:
+                    case Temperature:
                         mListSensor.setValue(newValues.getValue());
                         break;
 
                     // door
-                    case 2:
+                    case Door:
                         ((Door) mListSensor).setIsOpen(((Door) newValues).isOpen());
                         break;
 
                     // Light
-                    case 3:
+                    case Light:
                         ((Light) mListSensor).setIsOn(((Light) newValues).isOn());
                         break;
 
-                    case 4:
+                    case HVAC:
                         mListSensor.setValue(newValues.getValue());
                         ((HVAC) mListSensor).setIsOn(((HVAC) newValues).isOn());
                         break;
@@ -121,7 +120,7 @@ public class SensorProcessor {
     }
 
 
-    public static String generateRandomData(CopyOnWriteArrayList<Sensor> sensors) {
+    public static String generateRandomData(List<Sensor> sensors) {
 
         log.info("Generating random data");
 
@@ -129,11 +128,10 @@ public class SensorProcessor {
         int nNextSensorPos = m.nextInt(sensors.size() - 1);
 
         Sensor mSensor = sensors.get(nNextSensorPos);
-        switch (mSensor.getSensorClass()
-                       .ordinal()) {
+        switch (mSensor.getSensorClass()) {
 
             // Temperature io.dkozak.home.control.sensor
-            case 0:
+            case Temperature:
 
                 int nTemperature = mSensor.getValue();
                 if (nTemperature == 0) {
@@ -144,7 +142,7 @@ public class SensorProcessor {
                 break;
 
             // Blinder
-            case 1:
+            case Blinder:
                 int nLevel = mSensor.getValue();
                 if (nLevel == 0) {
                     nLevel = 100;
@@ -154,7 +152,7 @@ public class SensorProcessor {
                 break;
 
             // Door
-            case 2:
+            case Door:
                 if (((Door) mSensor).isOpen() == true) {
                     ((Door) mSensor).setIsOpen(false);
                 } else {
@@ -163,7 +161,7 @@ public class SensorProcessor {
                 break;
 
             // Lights
-            case 3:
+            case Light:
                 if (((Light) mSensor).isOn() == true) {
                     ((Light) mSensor).setIsOn(false);
                 } else {
@@ -172,7 +170,7 @@ public class SensorProcessor {
                 break;
 
             // HVAC
-            case 4:
+            case HVAC:
                 if (((HVAC) mSensor).isOn() == true) {
 
                     if (mSensor.getValue() != 0) {

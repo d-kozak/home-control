@@ -8,8 +8,8 @@ import lombok.extern.java.Log;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -19,7 +19,9 @@ import static io.dkozak.home.control.gateway.GatewayConfig.PORT_NUMBER;
 @Log
 public class Client {
 
-    public static void startCommunication(CopyOnWriteArrayList<Sensor> sensors) {
+    public static final Object LOCK = new Object();
+
+    public static void startCommunication(List<Sensor> sensors) {
         try (var socket = connectToServer(HOST, PORT_NUMBER);
              var bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              var outputStream = socket.getOutputStream()
@@ -36,7 +38,7 @@ public class Client {
         }
     }
 
-    private static void sendSensorInfo(CopyOnWriteArrayList<Sensor> sensors, OutputStream outputStream) throws IOException {
+    private static void sendSensorInfo(List<Sensor> sensors, OutputStream outputStream) throws IOException {
         var objectOutputStream = new ObjectOutputStream(outputStream);
         var firebaseSensors = sensors.stream()
                                      .map(Sensor::asFirebaseSensor)
@@ -45,15 +47,20 @@ public class Client {
         objectOutputStream.writeObject(firebaseSensors);
     }
 
-    public static Result<String, Exception> simulateSensors(CopyOnWriteArrayList<Sensor> sensors, OutputStream outputStream, AtomicBoolean isCancelled) {
+    public static Result<String, Exception> simulateSensors(List<Sensor> sensors, OutputStream outputStream, AtomicBoolean isCancelled) {
         var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         while (!isCancelled.get()) {
             try {
                 log.info("Sleeping for 3 seconds");
                 Thread.sleep(3000);
 
-                // Generate random event
-                String szMessage = SensorProcessor.generateRandomData(sensors);
+                String szMessage;
+
+                synchronized (LOCK) {
+                    // Generate random event
+                    szMessage = SensorProcessor.generateRandomData(sensors);
+                }
+
                 log.info("Writing data to server: " + szMessage);
 
                 printWriter.write(szMessage + "\n");
@@ -63,9 +70,12 @@ public class Client {
                 ex.printStackTrace();
                 isCancelled.set(true);
                 return new Result<>(null, ex);
+            } catch (Exception ex) {
+                log.severe("Unexpected exception " + ex.getMessage());
+                ex.printStackTrace();
             }
         }
-
+        log.info("Simulating sensors finished");
         return new Result<>("OK", null);
     }
 
@@ -84,7 +94,7 @@ public class Client {
         }
     }
 
-    static Result<String, Exception> listenToServer(CopyOnWriteArrayList<Sensor> sensors, BufferedReader inputStream, AtomicBoolean isCancelled) {
+    static Result<String, Exception> listenToServer(List<Sensor> sensors, BufferedReader inputStream, AtomicBoolean isCancelled) {
         try {
             String line;
             while (!isCancelled.get() && (line = inputStream.readLine()) != null) {
@@ -97,7 +107,10 @@ public class Client {
 
                 var newData = SensorProcessor.parseData(line);
                 if (newData != null) {
-                    SensorProcessor.updateSensorData(newData, sensors);
+                    synchronized (LOCK) {
+                        SensorProcessor.updateSensorData(newData, sensors);
+                    }
+
                 } else {
                     log.info("Could not parse received data: " + line);
                 }
