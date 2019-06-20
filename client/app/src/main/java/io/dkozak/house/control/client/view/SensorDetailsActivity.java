@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.dkozak.house.control.client.R;
+import io.dkozak.house.control.client.model.Sensor;
+import io.dkozak.house.control.client.model.SensorType;
 import io.dkozak.house.control.client.view.lib.SensorAwareActivity;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
@@ -30,7 +34,6 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.view.LineChartView;
 
 import static io.dkozak.house.control.client.Utils.requireNonNegative;
-import static java.util.Objects.requireNonNull;
 
 public class SensorDetailsActivity extends SensorAwareActivity {
 
@@ -38,8 +41,12 @@ public class SensorDetailsActivity extends SensorAwareActivity {
     public static final String SENSOR_TYPE = "sensor_type";
 
     private int sensorId;
-    private int sensorType;
+
     private LineChartView chart;
+    private Button statusButton;
+    private TextView statusTxt;
+    private TextView sensorNameTxt;
+    private TextView sensorTypeTxt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +59,13 @@ public class SensorDetailsActivity extends SensorAwareActivity {
 
         sensorId = requireNonNegative(intent.getIntExtra(SENSOR_ID, -1));
         setCurrentSensorId(sensorId);
-        sensorType = requireNonNegative(intent.getIntExtra(SENSOR_TYPE, -1));
-        String sensorName = requireNonNull(intent.getStringExtra(SENSOR_NAME));
 
-        ((TextView) findViewById(R.id.sensorName)).setText(sensorName);
+        sensorNameTxt = findViewById(R.id.sensorName);
+        sensorTypeTxt = findViewById(R.id.sensorType);
+
+        statusButton = findViewById(R.id.statusButton);
+        statusTxt = findViewById(R.id.statusTextView);
+
 
         chart = findViewById(R.id.chart);
     }
@@ -86,7 +96,20 @@ public class SensorDetailsActivity extends SensorAwareActivity {
     }
 
     @Override
-    protected void onNewSensorValues(List<List<Integer>> values) {
+    protected void onNewSensorValues(Sensor currentSensor, SensorType sensorType) {
+        sensorNameTxt.setText(currentSensor.getDescription());
+        sensorTypeTxt.setText(sensorType.getName());
+
+        if (sensorType.hasBooleanValue()) {
+            statusButton.setVisibility(View.VISIBLE);
+            statusTxt.setVisibility(View.VISIBLE);
+        } else {
+            statusButton.setVisibility(View.GONE);
+            statusTxt.setVisibility(View.GONE);
+        }
+
+
+        List<List<Integer>> values = currentSensor.getValues();
 
         List<AxisValue> xAxisValues = new ArrayList<>();
         List<AxisValue> yAxisValues = new ArrayList<>();

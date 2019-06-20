@@ -62,4 +62,12 @@ public class SensorType {
                 ", valueTypes=" + valueTypes +
                 '}';
     }
+
+    public boolean hasBooleanValue() {
+        for (SensorValue value : valueTypes) {
+            if (value == SensorValue.BOOL)
+                return true;
+        }
+        return false;
+    }
 }

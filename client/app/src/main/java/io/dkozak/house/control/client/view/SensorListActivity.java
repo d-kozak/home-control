@@ -38,9 +38,9 @@ public class SensorListActivity extends SensorAwareActivity {
             @Override
             public void onClick(Sensor sensor, SensorType sensorType) {
                 Intent intent = new Intent(SensorListActivity.this, SensorDetailsActivity.class);
-                intent.putExtra(SensorDetailsActivity.SENSOR_NAME, sensorType.getName() + " " + sensor.getSensorId());
+                intent.putExtra(SensorDetailsActivity.SENSOR_NAME, sensor.getDescription());
                 intent.putExtra(SensorAwareActivity.SENSOR_ID, sensor.getSensorId());
-                intent.putExtra(SensorDetailsActivity.SENSOR_TYPE, sensor.getSensorType());
+                intent.putExtra(SensorDetailsActivity.SENSOR_TYPE, sensorType.getName());
                 startActivity(intent);
             }
         });

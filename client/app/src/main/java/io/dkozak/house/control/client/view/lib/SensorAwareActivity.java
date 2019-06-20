@@ -1,5 +1,7 @@
 package io.dkozak.house.control.client.view.lib;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +34,8 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     private int currentSensorId = -1;
 
+    private Map<Integer, SensorType> sensorTypes;
+
     protected void setCurrentSensorId(int value) {
         this.currentSensorId = value;
     }
@@ -39,6 +43,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     protected void onNewSensorTypes(Map<Integer, SensorType> sensorTypes) {
 
     }
+
 
     protected void onNewAllSensors(List<Sensor> sensors) {
 
@@ -52,7 +57,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     }
 
-    protected void onNewSensorValues(List<List<Integer>> values) {
+    protected void onNewSensorValues(Sensor currentSensor, SensorType sensorType) {
 
     }
 
@@ -73,7 +78,8 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
         setupDatabaseListeners();
     }
 
-    private void setupDatabaseListeners() {
+    protected void setupDatabaseListeners() {
+        clearDatabaseListeners();
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         sensorTypeListener = database.getReference(SENSOR_TYPES_PATH)
                 .addValueEventListener(new ValueEventListener() {
@@ -84,6 +90,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                             sensorTypes.put(Integer.parseInt(item.getKey()), item.getValue(SensorType.class));
                         }
                         onNewSensorTypes(sensorTypes);
+                        SensorAwareActivity.this.sensorTypes = sensorTypes;
                     }
 
                     @Override
@@ -100,13 +107,16 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                         };
                         List<Sensor> allSensors = dataSnapshot.getValue(typeIndicator);
                         onNewAllSensors(allSensors);
-                        Map<Integer, Sensor> map = new HashMap<>();
+                        Map<Integer, Sensor> sensors = new HashMap<>();
                         if (allSensors != null) {
                             for (Sensor sensor : allSensors) {
-                                map.put(sensor.getSensorId(), sensor);
+                                sensors.put(sensor.getSensorId(), sensor);
                             }
                         }
-                        getUserSensors(map);
+                        getUserSensors(sensors);
+                        if (currentSensorId != -1) {
+                            getCurrentSensor(sensors);
+                        }
                     }
 
                     @Override
@@ -114,25 +124,19 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
                     }
                 });
+    }
 
-        if (currentSensorId != -1) {
-            sensorValuesListener = FirebaseDatabase.getInstance().getReference("sensor/" + currentSensorId + "/values")
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            GenericTypeIndicator<List<List<Integer>>> typeIndicator = new GenericTypeIndicator<List<List<Integer>>>() {
-                            };
-                            List<List<Integer>> values = dataSnapshot.getValue(typeIndicator);
-                            if (values != null) {
-                                onNewSensorValues(values);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
+    private void getCurrentSensor(Map<Integer, Sensor> sensors) {
+        Sensor currentSensor = sensors.get(currentSensorId);
+        if (currentSensor != null) {
+            SensorType sensorType = sensorTypes.get(currentSensor.getSensorType());
+            if (sensorType != null) {
+                onNewSensorValues(currentSensor, sensorType);
+            } else {
+                Log.e("Sensors", "Could not find sensor type for sensor with id " + currentSensorId);
+            }
+        } else {
+            Log.e("Sensors", "Could not find sensor with id " + currentSensorId);
         }
     }
 
@@ -192,12 +196,6 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                     .getReference(SENSOR_PATH)
                     .removeEventListener(sensorListener);
             sensorListener = null;
-        }
-
-        if (sensorValuesListener != null) {
-            FirebaseDatabase.getInstance().getReference("sensor/" + currentSensorId + "/values")
-                    .removeEventListener(sensorValuesListener);
-            sensorValuesListener = null;
         }
     }
 
