@@ -48,6 +48,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
     private TextView statusTxt;
     private TextView sensorNameTxt;
     private TextView sensorTypeTxt;
+    private TextView sensorIdTxt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,8 @@ public class SensorDetailsActivity extends SensorAwareActivity {
 
         statusButton = findViewById(R.id.statusButton);
         statusTxt = findViewById(R.id.statusTextView);
+
+        sensorIdTxt = findViewById(R.id.sensorId);
 
         Button rulesBtn = findViewById(R.id.rulesBtn);
         rulesBtn.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +113,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
     protected void onNewSensorValues(Sensor currentSensor, SensorType sensorType) {
         sensorNameTxt.setText(currentSensor.getDescription());
         sensorTypeTxt.setText(sensorType.getName());
+        sensorIdTxt.setText("Id: " + currentSensor.getSensorId());
 
         List<List<Integer>> values = currentSensor.getValues();
         if (values.isEmpty()) {
@@ -127,7 +131,8 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         List<AxisValue> yAxisValues = new ArrayList<>();
         List<PointValue> pointValues = new ArrayList<>();
 
-        for (int i = 0; i < values.size() && i < 15; i++) {
+        int start = values.size() <= 15 ? 0 : values.size() - 15;
+        for (int i = start; i < values.size(); i++) {
             List<Integer> value = values.get(i);
             pointValues.add(new PointValue(i, value.get(0)));
             xAxisValues.add(new AxisValue(i));
@@ -151,6 +156,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         data.setAxisYLeft(yAxis);
 
         chart.setLineChartData(data);
+        chart.refreshDrawableState();
     }
 
     private void renderBooleanConfig(final Sensor currentSensor, SensorType sensorType, List<Integer> lastValues) {
@@ -195,7 +201,6 @@ public class SensorDetailsActivity extends SensorAwareActivity {
             statusTxt.setVisibility(View.GONE);
         }
     }
-
 
 
 }
