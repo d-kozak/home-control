@@ -22,11 +22,16 @@ public class GatewayConnector {
             ) {
 
                 loadSensorTypes(inputStream, firebase);
+                setupSensorUpdateListener(outputStream, firebase);
                 readSensorData(inputStream, firebase);
             }
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private static void setupSensorUpdateListener(OutputStream outputStream, FirebaseConnector firebase) {
+
     }
 
     private static void loadSensorTypes(InputStream inputStream, FirebaseConnector firebase) throws IOException {
