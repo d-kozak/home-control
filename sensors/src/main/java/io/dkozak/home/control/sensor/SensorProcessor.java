@@ -25,20 +25,20 @@ public class SensorProcessor {
         String szSensorId = szResponseLine.substring(2, 4);
         int nSensorId = Integer.parseInt(szSensorId);
 
-        switch (nSensorClass) {
-            case 0:
+        switch (SensorClass.values()[nSensorClass]) {
+            case Temperature:
                 String szTemperature = szResponseLine.substring(4, 6);
                 int nSensorTemperature = Integer.parseInt(szTemperature);
                 mSensor = new Temperature(nSensorId, nSensorTemperature, "");
                 break;
 
-            case 1:
+            case Blinder:
                 String szBlinderPercentage = szResponseLine.substring(4, 7);
                 int nBlinderPercentage = Integer.parseInt(szBlinderPercentage);
                 mSensor = new Blinder(nSensorId, nBlinderPercentage, "");
                 break;
 
-            case 2:
+            case Door:
                 String szDoorState = szResponseLine.substring(4, 6);
                 int nDoorState = Integer.parseInt(szDoorState);
 
@@ -50,7 +50,7 @@ public class SensorProcessor {
                 mSensor = new Door(nSensorId, bIsDoorOpen, "");
                 break;
 
-            case 3:
+            case Light:
                 String szLightState = szResponseLine.substring(4, 6);
                 int nLightState = Integer.parseInt(szLightState);
 
@@ -62,7 +62,7 @@ public class SensorProcessor {
                 mSensor = new Light(nSensorId, bIsLightOn, "");
                 break;
 
-            case 4:
+            case HVAC:
                 String szHVACState = szResponseLine.substring(6, 8);
                 String szHVACTemperature = szResponseLine.substring(4, 6);
                 int nHVACState = Integer.parseInt(szHVACState);

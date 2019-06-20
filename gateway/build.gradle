@@ -34,6 +34,17 @@ tasks.test {
     jvmArgs("--enable-preview")
 }
 
+jar{
+    manifest{
+        attributes "Main-Class":"io.dkozak.home.control.gateway.Gateway"
+    }
+
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
 
 dependencies {
     compile(project(":sensors"))

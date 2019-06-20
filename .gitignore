@@ -1,5 +1,5 @@
 data/indexed/**
-
+out
 HELP.md
 .gradle
 /build/

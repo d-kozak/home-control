@@ -44,7 +44,7 @@ public abstract class Sensor {
     }
 
     public String toString() {
-        String szSensorClass = String.valueOf(sensorClass);
+        String szSensorClass = Integer.toString(sensorClass.ordinal());
         if (szSensorClass.length() == 1) {
             szSensorClass = "0" + szSensorClass;
         }
