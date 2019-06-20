@@ -15,7 +15,7 @@ public class SensorViewHolder extends RecyclerView.ViewHolder {
 
     public SensorViewHolder(@NonNull View itemView) {
         super(itemView);
-        sensorName = itemView.findViewById(R.id.sensorName);
+        sensorName = itemView.findViewById(R.id.index);
         sensorValue = itemView.findViewById(R.id.sensorValue);
     }
 }

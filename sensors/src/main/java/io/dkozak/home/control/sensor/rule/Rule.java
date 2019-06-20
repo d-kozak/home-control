@@ -12,17 +12,17 @@ import java.util.List;
 public class Rule {
     public int sensorId;
     public int threshold;
-    public int comparisonId;
+    public Comparison comparison;
     public int offset;
     public String deviceId;
 
-    public Rule(int sensorId, int threshold, int comparisonId, String deviceId) {
-        this(sensorId, threshold, comparisonId, 0, deviceId);
+    public Rule(int sensorId, int threshold, Comparison comparison, String deviceId) {
+        this(sensorId, threshold, comparison, 0, deviceId);
     }
 
     public boolean isTriggered(List<Integer> sensorValues) {
         var value = sensorValues.get(offset);
-        return switch (Comparison.values()[comparisonId]) {
+        return switch (comparison) {
             case GT -> value > threshold;
             case GE -> value >= threshold;
             case EQ -> value == threshold;

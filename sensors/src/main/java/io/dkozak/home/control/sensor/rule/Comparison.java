@@ -6,6 +6,4 @@ public enum Comparison {
     EQ,
     GE,
     GT;
-
-
 }

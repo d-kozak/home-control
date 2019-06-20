@@ -18,27 +18,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.dkozak.house.control.client.model.Rule;
 import io.dkozak.house.control.client.model.Sensor;
 import io.dkozak.house.control.client.model.SensorType;
 import io.dkozak.house.control.client.model.SensorUpdateRequest;
 
 public abstract class SensorAwareActivity extends LoginAwareActivity {
 
-    public static final String SENSOR_ID = "sensor_id";
 
+    public static final String SENSOR_ID = "sensor_id";
+    public static final String RULE_ID = "rule_id";
+
+    public static final String RULE_PATH = "rule";
     public static final String SENSOR_TYPES_PATH = "sensor-types";
     public static final String SENSOR_PATH = "sensor";
     private ValueEventListener sensorTypeListener;
     private ValueEventListener sensorListener;
-    private ValueEventListener sensorValuesListener;
+    private ValueEventListener ruleListener;
 
 
     private int currentSensorId = -1;
+    private String currentRuleId = null;
 
     private Map<Integer, SensorType> sensorTypes;
 
     protected void setCurrentSensorId(int value) {
         this.currentSensorId = value;
+    }
+
+    protected void setCurrentRuleId(String id) {
+        this.currentRuleId = id;
     }
 
     protected void onNewSensorTypes(Map<Integer, SensorType> sensorTypes) {
@@ -59,6 +68,14 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     }
 
     protected void onNewSensorValues(Sensor currentSensor, SensorType sensorType) {
+
+    }
+
+    protected void onNewDeviceRules(List<Rule> deviceRules) {
+
+    }
+
+    protected void onRuleDetails(Rule rule) {
 
     }
 
@@ -125,6 +142,39 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
                     }
                 });
+
+
+        ruleListener = database.getReference(RULE_PATH)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String currentDeviceId = getDeviceId();
+
+
+                        List<Rule> deviceRules = new ArrayList<>();
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            Rule rule = child.getValue(Rule.class);
+                            rule.id = child.getKey();
+                            if (rule.deviceId.equals(currentDeviceId)) {
+                                deviceRules.add(rule);
+                            }
+                        }
+                        onNewDeviceRules(deviceRules);
+                        if (currentRuleId != null) {
+                            for (Rule rule : deviceRules) {
+                                if (rule.id.equals(currentRuleId)) {
+                                    onRuleDetails(rule);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void getCurrentSensor(Map<Integer, Sensor> sensors) {
@@ -179,6 +229,10 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
         onNewNonUserSensors(nonUserSensors);
     }
 
+    public String getDeviceId() {
+        return "foo";
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -197,6 +251,12 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                     .getReference(SENSOR_PATH)
                     .removeEventListener(sensorListener);
             sensorListener = null;
+        }
+        if (ruleListener != null) {
+            FirebaseDatabase.getInstance()
+                    .getReference(RULE_PATH)
+                    .removeEventListener(ruleListener);
+            ruleListener = null;
         }
     }
 

@@ -34,10 +34,10 @@
             android:text="Type"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sensorName" />
+            app:layout_constraintTop_toBottomOf="@+id/index" />
 
         <TextView
-            android:id="@+id/sensorName"
+            android:id="@+id/index"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -58,7 +58,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.476"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sensorName" />
+            app:layout_constraintTop_toBottomOf="@+id/index" />
 
         <TextView
             android:id="@+id/sensorType"
@@ -72,7 +72,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.666"
             app:layout_constraintStart_toEndOf="@+id/textView"
-            app:layout_constraintTop_toBottomOf="@+id/sensorName" />
+            app:layout_constraintTop_toBottomOf="@+id/index" />
 
         <Button
             android:id="@+id/statusButton"

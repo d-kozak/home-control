@@ -62,7 +62,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         sensorId = requireNonNegative(intent.getIntExtra(SENSOR_ID, -1));
         setCurrentSensorId(sensorId);
 
-        sensorNameTxt = findViewById(R.id.sensorName);
+        sensorNameTxt = findViewById(R.id.index);
         sensorTypeTxt = findViewById(R.id.sensorType);
 
         statusButton = findViewById(R.id.statusButton);
@@ -74,7 +74,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         rulesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SensorDetailsActivity.this, RulesActivity.class);
+                Intent intent = new Intent(SensorDetailsActivity.this, RuleListActivity.class);
                 intent.putExtra(SENSOR_ID, sensorId);
                 startActivity(intent);
             }
