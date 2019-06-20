@@ -2,7 +2,6 @@ package io.dkozak.home.control.server;
 
 import io.dkozak.home.control.sensor.SensorProcessor;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
-import io.dkozak.home.control.sensor.firebase.SensorType;
 import io.dkozak.home.control.server.firebase.FirebaseConnector;
 import io.dkozak.home.control.utils.Log;
 
@@ -32,10 +31,6 @@ public class GatewayConnector {
     private static void loadSensorTypes(InputStream inputStream, FirebaseConnector firebase) throws IOException {
         try {
             var objectStream = new ObjectInputStream(inputStream);
-
-            var sensorTypes = (Set<SensorType>) objectStream.readObject();
-            Log.message("Loaded sensor types: " + sensorTypes);
-            firebase.updateList(sensorTypes, SensorType.class, "sensor-types");
 
             var sensors = (Set<FirebaseSensor>) objectStream.readObject();
             Log.message("Loaded sensors: " + sensors);

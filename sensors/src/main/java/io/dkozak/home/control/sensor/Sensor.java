@@ -21,8 +21,6 @@ public abstract class Sensor {
         this.sensorClass = sensorClass;
         this.identifier = identifier;
         this.description = description;
-        this.sensorType = new SensorType(sensorClass, this.getClass()
-                                                          .getSimpleName());
     }
 
     public abstract FirebaseSensor asFirebaseSensor();

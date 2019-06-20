@@ -37,14 +37,6 @@ public class Client {
 
     private static void sendSensorInfo(CopyOnWriteArrayList<Sensor> sensors, OutputStream outputStream) throws IOException {
         var objectOutputStream = new ObjectOutputStream(outputStream);
-
-        var sensorTypes = sensors.stream()
-                                 .map(Sensor::getSensorType)
-                                 .collect(Collectors.toSet());
-
-        Log.message("Sending sensor types: " + sensorTypes);
-        objectOutputStream.writeObject(sensorTypes);
-
         var firebaseSensors = sensors.stream()
                                      .map(Sensor::asFirebaseSensor)
                                      .collect(Collectors.toSet());
