@@ -65,7 +65,7 @@ public class SensorType {
 
     public int getBoolValueIndex() {
         for (int i = 0; i < valueTypes.size(); i++) {
-            if (valueTypes.get(i) == SensorValue.BOOL)
+            if (valueTypes.get(i).getType() == ValueType.BOOL)
                 return i;
         }
         return -1;

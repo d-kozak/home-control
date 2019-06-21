@@ -1,5 +1,6 @@
 package io.dkozak.house.control.client.view.rulelist;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,19 +14,22 @@ import java.util.List;
 
 import io.dkozak.house.control.client.R;
 import io.dkozak.house.control.client.model.Rule;
+import io.dkozak.house.control.client.model.SensorType;
 
 public class RuleRecyclerAdapter extends RecyclerView.Adapter<RuleRecyclerAdapter.RuleViewHolder> {
 
 
     private List<Rule> rules = Collections.emptyList();
     private RuleOnClickListener listener;
+    private SensorType sensorType;
 
     public RuleRecyclerAdapter(RuleOnClickListener listener) {
         this.listener = listener;
     }
 
-    public void update(List<Rule> newRules) {
+    public void update(List<Rule> newRules, SensorType sensorType) {
         this.rules = newRules;
+        this.sensorType = sensorType;
         this.notifyDataSetChanged();
     }
 
@@ -40,7 +44,17 @@ public class RuleRecyclerAdapter extends RecyclerView.Adapter<RuleRecyclerAdapte
     @Override
     public void onBindViewHolder(@NonNull RuleViewHolder holder, int position) {
         final Rule rule = rules.get(position);
-        holder.index.setText(rule.getOffset() + "");
+        if (sensorType == null)
+            holder.index.setText(rule.getOffset() + "");
+        else {
+            if (rule.getOffset() >= sensorType.getValueTypes().size()) {
+                Log.e("Rule Adapter", "Rule offser for " + rule + " is too damn big");
+                holder.index.setText(rule.getOffset() + "");
+            } else {
+                String name = sensorType.getValueTypes().get(rule.getOffset()).getName();
+                holder.index.setText(name);
+            }
+        }
         holder.comparison.setText(rule.getComparison().toString());
         holder.value.setText(rule.getThreshold() + "");
 

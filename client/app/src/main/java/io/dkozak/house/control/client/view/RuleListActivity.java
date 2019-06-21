@@ -14,6 +14,7 @@ import java.util.List;
 
 import io.dkozak.house.control.client.R;
 import io.dkozak.house.control.client.model.Rule;
+import io.dkozak.house.control.client.model.SensorType;
 import io.dkozak.house.control.client.view.lib.SensorAwareActivity;
 import io.dkozak.house.control.client.view.rulelist.RuleOnClickListener;
 import io.dkozak.house.control.client.view.rulelist.RuleRecyclerAdapter;
@@ -36,6 +37,10 @@ public class RuleListActivity extends SensorAwareActivity {
         final int sensorId = requireNonNegative(intent.getIntExtra(SENSOR_ID, -1));
         setCurrentSensorId(sensorId);
 
+        final int sensorTypeId = requireNonNegative(intent.getIntExtra(SENSOR_TYPE, -1));
+        setCurrentSensorType(sensorTypeId);
+
+
         RecyclerView ruleView = findViewById(R.id.ruleView);
         ruleView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RuleRecyclerAdapter(new RuleOnClickListener() {
@@ -43,7 +48,8 @@ public class RuleListActivity extends SensorAwareActivity {
             public void onClick(Rule rule) {
                 Intent intent = new Intent(RuleListActivity.this, RuleDetailsActivity.class);
                 intent.putExtra(RULE_ID, rule.getId())
-                        .putExtra(SENSOR_ID, sensorId);
+                        .putExtra(SENSOR_ID, sensorId)
+                        .putExtra(SENSOR_TYPE, sensorTypeId);
                 startActivity(intent);
             }
         });
@@ -54,14 +60,15 @@ public class RuleListActivity extends SensorAwareActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(RuleListActivity.this, RuleDetailsActivity.class)
-                        .putExtra(SENSOR_ID, sensorId);
+                        .putExtra(SENSOR_ID, sensorId)
+                        .putExtra(SENSOR_TYPE, sensorTypeId);
                 startActivity(intent);
             }
         });
     }
 
     @Override
-    protected void onNewDeviceRules(List<Rule> deviceRules) {
-        adapter.update(deviceRules);
+    protected void onNewDeviceRules(List<Rule> deviceRules, SensorType sensorType) {
+        adapter.update(deviceRules, sensorType);
     }
 }

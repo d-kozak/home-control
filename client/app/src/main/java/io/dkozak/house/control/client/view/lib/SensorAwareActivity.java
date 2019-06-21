@@ -32,6 +32,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
 
     public static final String SENSOR_ID = "sensor_id";
+    public static final String SENSOR_TYPE = "sensor-type";
     public static final String RULE_ID = "rule_id";
 
     public static final String RULE_PATH = "rule";
@@ -43,6 +44,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
 
     private int currentSensorId = -1;
+    private int currentSensorType = -1;
     private String currentRuleId = null;
 
     private Map<Integer, SensorType> sensorTypes;
@@ -53,6 +55,11 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     protected void setCurrentRuleId(String id) {
         this.currentRuleId = id;
+    }
+
+
+    protected void setCurrentSensorType(int value) {
+        this.currentSensorType = value;
     }
 
     protected void onNewSensorTypes(Map<Integer, SensorType> sensorTypes) {
@@ -76,11 +83,11 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
 
     }
 
-    protected void onNewDeviceRules(List<Rule> deviceRules) {
+    protected void onNewDeviceRules(List<Rule> deviceRules, SensorType sensorType) {
 
     }
 
-    protected void onRuleDetails(Rule rule) {
+    protected void onRuleDetails(Rule rule, SensorType sensorType) {
 
     }
 
@@ -91,7 +98,7 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
     }
 
     protected void removeRule(final String ruleId, DatabaseReference.CompletionListener completionListener) {
-        FirebaseDatabase.getInstance().getReference(RULE_PATH + "/" + ruleId).removeValue(completionListener);
+        FirebaseDatabase.getInstance().getReference(getSensorRulesForUserPath() + "/" + ruleId).removeValue(completionListener);
     }
 
     protected void addNewSensor(final Sensor sensor, final DatabaseReference.CompletionListener onComplete) {
@@ -156,25 +163,41 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
         ruleListener = database.getReference(getSensorRulesForUserPath())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        List<Rule> deviceRules = new ArrayList<>();
-                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                            Rule rule = child.getValue(Rule.class);
-                            rule.setId(child.getKey());
-                            if (rule.getSensorId() == currentSensorId) {
-                                deviceRules.add(rule);
-                            }
+                    public void onDataChange(@NonNull final DataSnapshot ruleSnapshot) {
+                        if (currentSensorType == -1) {
+                            Log.e("Sensor Aware", "currentSensorType not set...");
+                            return;
+                        }
+                        database.getReference(SENSOR_TYPES_PATH + "/" + currentSensorType)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        SensorType sensorType = dataSnapshot.getValue(SensorType.class);
+                                        List<Rule> deviceRules = new ArrayList<>();
+                                        for (DataSnapshot child : ruleSnapshot.getChildren()) {
+                                            Rule rule = child.getValue(Rule.class);
+                                            rule.setId(child.getKey());
+                                            if (rule.getSensorId() == currentSensorId) {
+                                                deviceRules.add(rule);
+                                            }
 
-                        }
-                        onNewDeviceRules(deviceRules);
-                        if (currentRuleId != null) {
-                            for (Rule rule : deviceRules) {
-                                if (rule.getId().equals(currentRuleId)) {
-                                    onRuleDetails(rule);
-                                    break;
-                                }
-                            }
-                        }
+                                        }
+                                        onNewDeviceRules(deviceRules, sensorType);
+                                        if (currentRuleId != null) {
+                                            for (Rule rule : deviceRules) {
+                                                if (rule.getId().equals(currentRuleId)) {
+                                                    onRuleDetails(rule, sensorType);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
 
                     @Override
@@ -230,6 +253,24 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
                 });
     }
 
+    protected void getSensorType(final Rule rule, int currentSensorId) {
+        FirebaseDatabase.getInstance().getReference(SENSOR_TYPES_PATH + "/" + currentSensorId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        SensorType sensorType = dataSnapshot.getValue(SensorType.class);
+                        if (sensorType != null) {
+                            onRuleDetails(rule, sensorType);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
     private void getNonUserSensors(Map<Integer, Sensor> sensors, List<Integer> userSensorIds) {
         List<Sensor> nonUserSensors = new ArrayList<>();
         for (Map.Entry<Integer, Sensor> entry : sensors.entrySet()) {
@@ -239,10 +280,6 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
             }
         }
         onNewNonUserSensors(nonUserSensors);
-    }
-
-    public String getDeviceId() {
-        return "foo";
     }
 
     @Override

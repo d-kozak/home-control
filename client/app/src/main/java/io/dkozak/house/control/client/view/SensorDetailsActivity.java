@@ -39,7 +39,6 @@ import static io.dkozak.house.control.client.Utils.requireNonNegative;
 public class SensorDetailsActivity extends SensorAwareActivity {
 
     public static final String SENSOR_NAME = "sensor_name";
-    public static final String SENSOR_TYPE = "sensor_type";
 
     private int sensorId;
 
@@ -62,6 +61,9 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         sensorId = requireNonNegative(intent.getIntExtra(SENSOR_ID, -1));
         setCurrentSensorId(sensorId);
 
+        final int sensorTypeId = requireNonNegative(intent.getIntExtra(SENSOR_TYPE, -1));
+        setCurrentSensorType(sensorTypeId);
+
         sensorNameTxt = findViewById(R.id.index);
         sensorTypeTxt = findViewById(R.id.sensorType);
 
@@ -75,8 +77,8 @@ public class SensorDetailsActivity extends SensorAwareActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(SensorDetailsActivity.this, RuleListActivity.class);
-                intent.putExtra(SENSOR_ID, sensorId);
-                startActivity(intent);
+                startActivity(intent.putExtra(SENSOR_ID, sensorId)
+                        .putExtra(SENSOR_TYPE, sensorTypeId));
             }
         });
 

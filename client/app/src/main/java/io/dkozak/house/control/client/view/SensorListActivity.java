@@ -48,7 +48,7 @@ public class SensorListActivity extends SensorAwareActivity {
                 Intent intent = new Intent(SensorListActivity.this, SensorDetailsActivity.class);
                 intent.putExtra(SensorDetailsActivity.SENSOR_NAME, sensor.getDescription());
                 intent.putExtra(SensorAwareActivity.SENSOR_ID, sensor.getSensorId());
-                intent.putExtra(SensorDetailsActivity.SENSOR_TYPE, sensorType.getName());
+                intent.putExtra(SensorDetailsActivity.SENSOR_TYPE, sensorType.getId());
                 startActivity(intent);
             }
         });
