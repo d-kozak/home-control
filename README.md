@@ -15,6 +15,9 @@ The whole system consists of four modules.
 * Sensors
     * Contains common code shared between the server and the gateway. 
 
+Dependencies between modules can be seen on the following diagram.
+![alt text](./imgs/main_deps.png)
+
 ## Requirements
 The client app requires Android version _7_ or higher.
 
@@ -50,7 +53,15 @@ The main functions of this component are the following.
 * propagate requests for sensor changes from the client to the gateway
 * call your mum when you will be late for dinner
 
-When started, it waits for the Gateway to connect to it. The it retrieves information
+When started, it waits for the Gateway to connect to it. Then it retrieves information about current sensors
+and saves then in the the firebase database. 
+
+Then it listens for sensor updates from the gateway and propagates them to the database.
+It also setups listeners for sensor change requests from the client 
+and propagates them to the backend.
+
+The complete flow of data can be seen on the following diagram
+![alt text](./imgs/dataflow.png)
 
 
 ### Client 
