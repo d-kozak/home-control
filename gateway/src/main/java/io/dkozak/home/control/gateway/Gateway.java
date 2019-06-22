@@ -18,6 +18,6 @@ public class Gateway {
     static void connectToServer(List<Sensor> sensors) {
         log.info("Starting connection to server");
 
-        Client.startCommunication(new CopyOnWriteArrayList<>(sensors));
+        ServerConnector.startCommunication(new CopyOnWriteArrayList<>(sensors));
     }
 }

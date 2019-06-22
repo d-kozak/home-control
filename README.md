@@ -1,6 +1,6 @@
 # Home control
 
-* author: d-dkozak
+* author: d-    kozak
 * mail: dkozak94@gmail.com
 
 Home control is a IOT solution that allows users to monitor and change the values of sensors in their home. 
@@ -36,6 +36,11 @@ even though other IDEs should work as well as long as they support Gradle projec
 In this section, the design and implementation of the four components will be discussed.
 
 ### Gateway
+This module simulates sensor data. It communicates with the server through a socket at localhost:3000.
+In the beginning it sends information about available sensors to the server and then it regularly generates random new sensor data.
+Also it keeps track of current sensor values and updates it when it receives notifications from the server.
+![alt text](./imgs/gateway-classes.png)
+
 
 ### Server
 

@@ -18,7 +18,7 @@ import static io.dkozak.home.control.gateway.GatewayConfig.HOST;
 import static io.dkozak.home.control.gateway.GatewayConfig.PORT_NUMBER;
 
 @Log
-public class Client {
+public class ServerConnector {
 
     public static final Object LOCK = new Object();
 
@@ -48,7 +48,7 @@ public class Client {
         objectOutputStream.writeObject(firebaseSensors);
     }
 
-    public static Result<String, Exception> simulateSensors(List<Sensor> sensors, OutputStream outputStream, AtomicBoolean isCancelled) {
+    private static Result<String, Exception> simulateSensors(List<Sensor> sensors, OutputStream outputStream, AtomicBoolean isCancelled) {
         var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         while (!isCancelled.get()) {
             try {
@@ -80,7 +80,7 @@ public class Client {
         return new Result<>("OK", null);
     }
 
-    static Socket connectToServer(String host, int portNumber) {
+    private static Socket connectToServer(String host, int portNumber) {
         try {
             log.info("Opening socket to server: " + host + " " + portNumber);
             return new Socket(host, portNumber);
@@ -95,7 +95,7 @@ public class Client {
         }
     }
 
-    static Result<String, Exception> listenToServer(List<Sensor> sensors, BufferedReader inputStream, OutputStream outputStream, AtomicBoolean isCancelled) {
+    private static Result<String, Exception> listenToServer(List<Sensor> sensors, BufferedReader inputStream, OutputStream outputStream, AtomicBoolean isCancelled) {
         var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         try {
             String line;
