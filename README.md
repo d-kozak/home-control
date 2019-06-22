@@ -39,10 +39,19 @@ In this section, the design and implementation of the four components will be di
 This module simulates sensor data. It communicates with the server through a socket at localhost:3000.
 In the beginning it sends information about available sensors to the server and then it regularly generates random new sensor data.
 Also it keeps track of current sensor values and updates it when it receives notifications from the server.
+It's class diagram is the following.
 ![alt text](./imgs/gateway-classes.png)
 
-
 ### Server
+The main functions of this component are the following.
+ 
+* handle data coming from the gateway and persist them in the firebase database
+* trigger user rules if necessary
+* propagate requests for sensor changes from the client to the gateway
+* call your mum when you will be late for dinner
+
+When started, it waits for the Gateway to connect to it. The it retrieves information
+
 
 ### Client 
 
