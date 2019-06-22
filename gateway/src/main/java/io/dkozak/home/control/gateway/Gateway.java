@@ -2,7 +2,6 @@ package io.dkozak.home.control.gateway;
 
 import io.dkozak.home.control.sensor.Sensor;
 import lombok.extern.java.Log;
-import lombok.var;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

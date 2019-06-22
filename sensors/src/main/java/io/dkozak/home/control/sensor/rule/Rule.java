@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
-import lombok.var;
 
 import java.util.List;
 
@@ -29,19 +28,12 @@ public class Rule {
             return false;
         }
         var value = sensorValues.get(offset);
-        switch (comparison) {
-            case GT:
-                return value > threshold;
-            case GE:
-                return value >= threshold;
-            case EQ:
-                return value == threshold;
-            case LE:
-                return value <= threshold;
-            case LT:
-                return value < threshold;
-            default:
-                throw new IllegalArgumentException("Should be exhaustive");
-        }
+        return switch (comparison) {
+            case GT -> value > threshold;
+            case GE -> value >= threshold;
+            case EQ -> value == threshold;
+            case LE -> value <= threshold;
+            case LT -> value < threshold;
+        };
     }
 }

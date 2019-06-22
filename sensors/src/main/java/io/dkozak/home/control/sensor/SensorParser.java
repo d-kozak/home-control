@@ -3,7 +3,6 @@ package io.dkozak.home.control.sensor;
 import io.dkozak.home.control.sensor.firebase.SensorUpdateRequest;
 import io.dkozak.home.control.sensor.type.*;
 import lombok.extern.java.Log;
-import lombok.var;
 
 @Log
 public class SensorParser {
@@ -93,16 +92,15 @@ public class SensorParser {
 
         try {
             var sensorId = Integer.parseInt(input.substring(0, 2));
-            int parsed = Integer.parseInt(input.substring(2, 3));
-            boolean newValue;
-            if (parsed == 0) {
-                newValue = false;
-            } else if (parsed == 1) {
-                newValue = true;
-            } else {
-                log.severe("Invalid new value, can be only 1 or 0, that is true or false");
-                throw new NumberFormatException();
-            }
+            boolean newValue = switch (Integer.parseInt(input.substring(2, 3))) {
+                case 0 -> false;
+                case 1 -> true;
+                default -> {
+                    log.severe("Invalid new value, can be only 1 or 0, that is true or false");
+                    throw new NumberFormatException();
+                }
+            };
+
             return new SensorUpdateRequest(null, sensorId, newValue);
         } catch (NumberFormatException ex) {
             log.severe("Failed to parse " + input);

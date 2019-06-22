@@ -4,7 +4,6 @@ import io.dkozak.home.control.sensor.SensorParser;
 import io.dkozak.home.control.sensor.firebase.FirebaseSensor;
 import io.dkozak.home.control.server.firebase.FirebaseConnector;
 import lombok.extern.java.Log;
-import lombok.var;
 
 import java.io.*;
 import java.net.ServerSocket;

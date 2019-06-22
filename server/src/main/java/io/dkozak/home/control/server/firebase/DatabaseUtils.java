@@ -1,7 +1,6 @@
 package io.dkozak.home.control.server.firebase;
 
 import com.google.firebase.database.*;
-import lombok.var;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;

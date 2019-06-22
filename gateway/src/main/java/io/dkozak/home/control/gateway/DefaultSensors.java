@@ -3,7 +3,6 @@ package io.dkozak.home.control.gateway;
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.type.*;
 import lombok.extern.java.Log;
-import lombok.var;
 
 import java.util.List;
 

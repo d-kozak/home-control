@@ -7,7 +7,6 @@ import com.google.firebase.database.ValueEventListener;
 import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.rule.Rule;
 import lombok.extern.java.Log;
-import lombok.var;
 
 import java.util.List;
 
