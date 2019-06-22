@@ -16,7 +16,7 @@ The whole system consists of four modules.
     * Contains common code shared between the server and the gateway. 
 
 Dependencies between modules can be seen on the following diagram.
-![alt text](./imgs/main_deps.png)
+![alt text](./imgs/main-deps.png)
 
 ## Requirements
 The client app requires Android version _7_ or higher.
@@ -63,7 +63,10 @@ and propagates them to the backend.
 The complete flow of data can be seen on the following diagram
 ![alt text](./imgs/dataflow.png)
 
+### Sensors
+This module contains domain classes used in the backend and also shared processing logic such as parsing
+and serializing sensor data.
+![alt text](./imgs/sensors-classes.png)
 
 ### Client 
 
-### Sensors
