@@ -2,6 +2,7 @@ package io.dkozak.home.control.server;
 
 
 import io.dkozak.home.control.server.firebase.FirebaseConnector;
+import lombok.var;
 
 public class Server {
 

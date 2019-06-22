@@ -9,6 +9,7 @@ import io.dkozak.home.control.sensor.Sensor;
 import io.dkozak.home.control.sensor.firebase.SensorUpdateRequest;
 import io.dkozak.home.control.server.ServerConfig;
 import lombok.extern.java.Log;
+import lombok.var;
 
 import java.io.FileInputStream;
 import java.io.IOException;

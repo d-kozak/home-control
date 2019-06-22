@@ -5,6 +5,7 @@ import io.dkozak.home.control.sensor.SensorParser;
 import io.dkozak.home.control.sensor.SensorProcessor;
 import io.dkozak.home.control.utils.Result;
 import lombok.extern.java.Log;
+import lombok.var;
 
 import java.io.*;
 import java.net.Socket;

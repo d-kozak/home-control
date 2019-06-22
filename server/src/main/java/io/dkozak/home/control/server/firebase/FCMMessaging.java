@@ -10,6 +10,7 @@ import com.google.firebase.messaging.Message;
 import io.dkozak.home.control.sensor.rule.Rule;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
+import lombok.var;
 
 @Log
 @AllArgsConstructor
