@@ -34,11 +34,9 @@ public class SensorProcessor {
                         switch (request.getIndex()) {
                             case 0 -> {
                                 hvac.setValue(request.getValue());
-                                break;
                             }
                             case 1 -> {
                                 hvac.setIsOn(request.getValue() > 0);
-                                break;
                             }
                             default -> {
                                 log.severe("Unsupported index " + request.getIndex() + " for sensor " + hvac);
