@@ -7,6 +7,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import io.dkozak.home.control.sensor.firebase.SensorType;
 import io.dkozak.home.control.sensor.rule.Rule;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
@@ -17,7 +18,7 @@ public class FCMMessaging {
 
     private final FirebaseMessaging messaging;
 
-    public void sendMessage(Rule rule) {
+    public void sendMessage(Rule rule, SensorType sensorType) {
         log.info("preparing to send notifications to " + rule.getUserId());
         FirebaseDatabase.getInstance()
                         .getReference("user/" + rule.getUserId() + "/devices")
@@ -27,7 +28,7 @@ public class FCMMessaging {
                                 log.info("starting sending messages");
                                 for (var device : snapshot.getChildren()) {
                                     log.info("sending message to " + device);
-                                    sendMessageToDevice(rule, device.getKey());
+                                    sendMessageToDevice(rule, sensorType, device.getKey());
                                 }
                             }
 
@@ -38,11 +39,16 @@ public class FCMMessaging {
                         });
     }
 
-    private void sendMessageToDevice(Rule rule, String token) {
+    private void sendMessageToDevice(Rule rule, SensorType sensorType, String token) {
         try {
+            var text = sensorType.getValueTypes()
+                                 .get(rule.getOffset())
+                                 .getName() + " " + rule.getComparison() + " " + rule.getThreshold()
+                    + " triggered";
             var message = Message.builder()
                                  .putData("Title", "Event")
                                  .putData("Sensor ID", rule.getSensorId() + "")
+                                 .putData("msg", text)
                                  .setToken(token)
                                  .build();
             log.info("Sending message: " + message);
