@@ -34,10 +34,7 @@ public class GatewayConnector {
         var writer = new OutputStreamWriter(outputStream);
         firebase.onUserRequestedSensorUpdate((request) -> {
             try {
-                String message = String.valueOf(request.getSensorId());
-                if (message.length() == 1)
-                    message = '0' + message;
-                message += (request.isNewValue() ? 1 : 0) + '\n';
+                String message = SensorParser.serializeSensorUpdate(request);
                 log.finer("Sending message " + message);
                 writer.write(message);
                 writer.flush();

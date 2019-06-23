@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class SensorUpdateRequest {
     private String user;
     private int sensorId;
-    private boolean newValue;
+    private int index;
+    private int value;
 }

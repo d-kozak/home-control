@@ -85,26 +85,33 @@ public class SensorParser {
     public static SensorUpdateRequest parseUpdateRequest(String input) {
         log.finer("Parsing " + input);
 
-        if (input.length() != 3) {
-            log.severe("Invalid length of input message" + input + ", should be 3");
+        if (input.length() < 4) {
+            log.severe("Invalid length of input message" + input + ", should be at least 4");
             return null;
         }
 
         try {
             var sensorId = Integer.parseInt(input.substring(0, 2));
-            boolean newValue = switch (Integer.parseInt(input.substring(2, 3))) {
-                case 0 -> false;
-                case 1 -> true;
-                default -> {
-                    log.severe("Invalid new value, can be only 1 or 0, that is true or false");
-                    throw new NumberFormatException();
-                }
-            };
+            var index = Integer.parseInt(input.substring(2, 3));
+            var value = Integer.parseInt(input.substring(3));
 
-            return new SensorUpdateRequest(null, sensorId, newValue);
+            return new SensorUpdateRequest(null, sensorId, index, value);
         } catch (NumberFormatException ex) {
             log.severe("Failed to parse " + input);
         }
         return null;
+    }
+
+    public static String serializeSensorUpdate(SensorUpdateRequest request) {
+        var builder = new StringBuilder();
+        if (request.getSensorId() < 10) {
+            builder.append('0');
+            builder.append(request.getSensorId());
+        } else {
+            builder.append(request.getSensorId());
+        }
+        builder.append(request.getIndex());
+        builder.append(request.getValue());
+        return builder.toString();
     }
 }

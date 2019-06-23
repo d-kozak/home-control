@@ -20,21 +20,28 @@ public class SensorProcessor {
                 switch (sensor.getSensorClass()) {
                     case Blinder:
                     case Temperature:
-                        log.severe("Cannot update temperature or blinder");
-                        break;
-
-                    // door
                     case Door:
-                        ((Door) sensor).setIsOpen(request.isNewValue());
-                        break;
-
-                    // Light
                     case Light:
-                        ((Light) sensor).setIsOn(request.isNewValue());
+                        if (request.getIndex() == 0) {
+                            sensor.setValue(request.getValue());
+                        } else {
+                            log.severe("Unsupported index " + request.getIndex() + " for sensor " + sensor);
+                        }
                         break;
 
                     case HVAC:
-                        ((HVAC) sensor).setIsOn(request.isNewValue());
+                        var hvac = ((HVAC) sensor);
+                        switch (request.getIndex()) {
+                            case 0: {
+                                hvac.setIsOn(request.getValue() > 0);
+                            }
+                            case 1: {
+                                hvac.setValue(request.getValue());
+                            }
+                            default: {
+                                log.severe("Unsupported index " + request.getIndex() + " for sensor " + hvac);
+                            }
+                        }
                         break;
                 }
                 log.finer("Sensor data updated: " + sensor.toString());

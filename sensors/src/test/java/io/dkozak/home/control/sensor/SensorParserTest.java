@@ -29,14 +29,27 @@ class SensorParserTest {
 
     @Test
     void parseUpdateRequestTest() {
-        assertThat(SensorParser.parseUpdateRequest("011"))
-                .isEqualTo(new SensorUpdateRequest(null, 1, true));
-        assertThat(SensorParser.parseUpdateRequest("070"))
-                .isEqualTo(new SensorUpdateRequest(null, 7, false));
-        assertThat(SensorParser.parseUpdateRequest("720"))
-                .isEqualTo(new SensorUpdateRequest(null, 72, false));
-        assertThat(SensorParser.parseUpdateRequest("951"))
-                .isEqualTo(new SensorUpdateRequest(null, 95, true));
+        assertThat(SensorParser.parseUpdateRequest("01142"))
+                .isEqualTo(new SensorUpdateRequest(null, 1, 1, 42));
+        assertThat(SensorParser.parseUpdateRequest("076100"))
+                .isEqualTo(new SensorUpdateRequest(null, 7, 6, 100));
+        assertThat(SensorParser.parseUpdateRequest("7200"))
+                .isEqualTo(new SensorUpdateRequest(null, 72, 0, 0));
+        assertThat(SensorParser.parseUpdateRequest("95254"))
+                .isEqualTo(new SensorUpdateRequest(null, 95, 2, 54));
     }
 
+
+    @Test
+    void serializeAndParseTest() {
+        var updates = listOf(new SensorUpdateRequest(null, 1, 1, 42),
+                new SensorUpdateRequest(null, 7, 6, 100),
+                new SensorUpdateRequest(null, 72, 0, 0),
+                new SensorUpdateRequest(null, 95, 2, 54));
+        for (var update : updates) {
+            String serialized = SensorParser.serializeSensorUpdate(update);
+            assertThat(SensorParser.parseUpdateRequest(serialized))
+                    .isEqualTo(update);
+        }
+    }
 }
