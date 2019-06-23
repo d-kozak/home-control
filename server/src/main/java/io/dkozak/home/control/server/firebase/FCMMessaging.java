@@ -55,6 +55,8 @@ public class FCMMessaging {
             var response = messaging.send(message);
             log.info("Received response: " + response);
         } catch (FirebaseMessagingException ex) {
+            log.severe("Sending message failed " + ex.getMessage());
+            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }
