@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +50,10 @@ public class SensorDetailsActivity extends SensorAwareActivity {
     private TextView sensorTypeTxt;
     private TextView sensorIdTxt;
 
+    private TextView intValueName;
+    private EditText intValue;
+    private Button intValueBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +76,10 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         statusTxt = findViewById(R.id.statusTextView);
 
         sensorIdTxt = findViewById(R.id.sensorId);
+
+        intValueName = findViewById(R.id.intValueName);
+        intValue = findViewById(R.id.intValue);
+        intValueBtn = findViewById(R.id.intValueBtn);
 
         Button rulesBtn = findViewById(R.id.rulesBtn);
         rulesBtn.setOnClickListener(new View.OnClickListener() {
@@ -124,6 +133,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
         }
         List<Integer> lastValues = values.get(values.size() - 1);
 
+        renderIntConfig(currentSensor, sensorType, lastValues);
         renderBooleanConfig(currentSensor, sensorType, lastValues);
         renderChart(values);
     }
@@ -159,6 +169,41 @@ public class SensorDetailsActivity extends SensorAwareActivity {
 
         chart.setLineChartData(data);
         chart.refreshDrawableState();
+    }
+
+    private void renderIntConfig(final Sensor currentSensor, SensorType sensorType, List<Integer> lastValues) {
+        final int intValueIndex = sensorType.getIntValueIndex();
+        if (intValueIndex != -1) {
+            intValueName.setVisibility(View.VISIBLE);
+            intValue.setVisibility(View.VISIBLE);
+            intValueBtn.setVisibility(View.VISIBLE);
+
+            if (intValueIndex >= lastValues.size()) {
+                Log.e("Sensor details", "Could not extract last int at index " + intValueIndex + " value from " + lastValues);
+                return;
+            }
+            final int currentValue = lastValues.get(intValueIndex);
+            intValueName.setText(sensorType.getValueTypes().get(intValueIndex).getName());
+            if (intValue.getText().toString().isEmpty())
+                intValue.setText(currentValue + "");
+            intValueBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int newValue = Integer.parseInt(intValue.getText().toString());
+                    sensorUpdateRequest(currentSensor, intValueIndex, newValue, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                            Toast.makeText(SensorDetailsActivity.this, "Request sent", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            });
+
+        } else {
+            intValueName.setVisibility(View.GONE);
+            intValue.setVisibility(View.GONE);
+            intValueBtn.setVisibility(View.GONE);
+        }
     }
 
     private void renderBooleanConfig(final Sensor currentSensor, SensorType sensorType, List<Integer> lastValues) {

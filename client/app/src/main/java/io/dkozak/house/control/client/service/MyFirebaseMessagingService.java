@@ -49,6 +49,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
+            Log.i("FCM", "Notification sent");
             mNotificationManager.notify(sensorId, mBuilder.build());
         } else {
             Log.e("FCM", "Could not get notification manager");

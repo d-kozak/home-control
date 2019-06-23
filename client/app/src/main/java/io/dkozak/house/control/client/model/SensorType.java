@@ -63,11 +63,19 @@ public class SensorType {
                 '}';
     }
 
-    public int getBoolValueIndex() {
+    private int getValueIndex(ValueType type) {
         for (int i = 0; i < valueTypes.size(); i++) {
-            if (valueTypes.get(i).getType() == ValueType.BOOL)
+            if (valueTypes.get(i).getType() == type)
                 return i;
         }
         return -1;
+    }
+
+    public int getBoolValueIndex() {
+        return getValueIndex(ValueType.BOOL);
+    }
+
+    public int getIntValueIndex() {
+        return getValueIndex(ValueType.INT);
     }
 }
