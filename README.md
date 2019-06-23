@@ -69,4 +69,14 @@ and serializing sensor data.
 ![alt text](./imgs/sensors-classes.png)
 
 ### Client 
+The client app consists of 6 main activities. There also two helper activities for easier code sharing, SensorAwareActivity and LoginAwareActivity,
+from which most of the other activities inherit.
+![alt text](./imgs/activities-class.png)
 
+When the app is opened, LoginActivity is loaded, which triggers authentication using Firebase. When it is done, the SensorListActivity is started.
+In this one, user can see a list of all his sensors. He can also add new sensors using the NewSensorActivity. After clicking on a specific sensor,
+user is redirected to SensorDetails activity. Here it is possible to visualize and change data for one particular sensor. Also, the RuleListActivity
+showing all rules associated with this sensor is accessible from here. After clicking on an individual rule, user is redirected to a RuleDetails activity,
+where he can tweak the rule. The whole flow is visualized on the following diagram.
+![alt text](./imgs/activities-flow.png)
+ 
