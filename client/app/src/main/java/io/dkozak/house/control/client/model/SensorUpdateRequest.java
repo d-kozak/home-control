@@ -5,26 +5,26 @@ import java.util.Objects;
 public class SensorUpdateRequest {
     private String user;
     private int sensorId;
-    private int newValue;
+    private int value;
     private int index;
 
     public SensorUpdateRequest() {
     }
 
 
-    public SensorUpdateRequest(String user, int sensorId, int newValue, int index) {
+    public SensorUpdateRequest(String user, int sensorId, int value, int index) {
         this.user = user;
         this.sensorId = sensorId;
-        this.newValue = newValue;
+        this.value = value;
         this.index = index;
     }
 
-    public int getNewValue() {
-        return newValue;
+    public int getValue() {
+        return value;
     }
 
-    public void setNewValue(int newValue) {
-        this.newValue = newValue;
+    public void setValue(int value) {
+        this.value = value;
     }
 
     public int getIndex() {
@@ -57,14 +57,14 @@ public class SensorUpdateRequest {
         if (o == null || getClass() != o.getClass()) return false;
         SensorUpdateRequest that = (SensorUpdateRequest) o;
         return sensorId == that.sensorId &&
-                newValue == that.newValue &&
+                value == that.value &&
                 index == that.index &&
                 Objects.equals(user, that.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, sensorId, newValue, index);
+        return Objects.hash(user, sensorId, value, index);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class SensorUpdateRequest {
         return "SensorUpdateRequest{" +
                 "user='" + user + '\'' +
                 ", sensorId=" + sensorId +
-                ", newValue=" + newValue +
+                ", value=" + value +
                 ", index=" + index +
                 '}';
     }
