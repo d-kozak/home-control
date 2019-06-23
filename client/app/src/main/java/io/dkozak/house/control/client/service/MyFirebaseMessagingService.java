@@ -43,8 +43,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                        .setContentTitle(data.get("Title "))
-                        .setContentText("Sensor id " + sensorId);
+                        .setContentTitle("Sensor id " + sensorId)
+                        .setContentText(data.get("msg"));
 
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
