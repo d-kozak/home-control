@@ -32,13 +32,15 @@ public class SensorProcessor {
                     case HVAC:
                         var hvac = ((HVAC) sensor);
                         switch (request.getIndex()) {
-                            case 0: {
-                                hvac.setIsOn(request.getValue() > 0);
-                            }
-                            case 1: {
+                            case 0 -> {
                                 hvac.setValue(request.getValue());
+                                break;
                             }
-                            default: {
+                            case 1 -> {
+                                hvac.setIsOn(request.getValue() > 0);
+                                break;
+                            }
+                            default -> {
                                 log.severe("Unsupported index " + request.getIndex() + " for sensor " + hvac);
                             }
                         }
