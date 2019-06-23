@@ -36,7 +36,7 @@ public class GatewayConnector {
             try {
                 String message = SensorParser.serializeSensorUpdate(request);
                 log.finer("Sending message " + message);
-                writer.write(message);
+                writer.write(message + "\n");
                 writer.flush();
             } catch (IOException ex) {
                 ex.printStackTrace();

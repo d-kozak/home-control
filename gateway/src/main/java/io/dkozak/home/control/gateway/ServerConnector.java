@@ -96,6 +96,7 @@ public class ServerConnector {
     }
 
     private static Result<String, Exception> listenToServer(List<Sensor> sensors, BufferedReader inputStream, OutputStream outputStream, AtomicBoolean isCancelled) {
+        log.info("Started listening...");
         var printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
         try {
             String line;
@@ -103,7 +104,7 @@ public class ServerConnector {
                 log.finer("Received: " + line);
 
                 if (line.equals("exit")) {
-                    log.finer("Exiting...");
+                    log.info("Exiting...");
                     break;
                 }
                 var updateRequest = SensorParser.parseUpdateRequest(line);
@@ -125,10 +126,11 @@ public class ServerConnector {
                 }
 
             }
+            log.info("Exiting the main listen loop");
             isCancelled.set(true);
             return new Result<>("OK", null);
         } catch (IOException ex) {
-            log.info("IO exception");
+            log.severe("IO exception");
             ex.printStackTrace();
             return new Result<>(null, ex);
         }
