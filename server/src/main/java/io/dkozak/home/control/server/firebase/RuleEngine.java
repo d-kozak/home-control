@@ -34,7 +34,7 @@ public class RuleEngine {
                             @Override
                             public void onDataChange(DataSnapshot snapshot) {
                                 SensorType sensorType = snapshot.getValue(SensorType.class);
-                                log.info("Loaded sensor type + ");
+                                log.info("Loaded sensor type " + sensorType);
                                 FirebaseDatabase.getInstance()
                                                 .getReference("sensor/" + sensor.getIdentifier() + "/rule")
                                                 .addListenerForSingleValueEvent(
