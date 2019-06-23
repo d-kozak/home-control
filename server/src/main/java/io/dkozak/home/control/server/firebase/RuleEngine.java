@@ -25,7 +25,7 @@ public class RuleEngine {
 
 
     public void newValuesFor(Sensor sensor) {
-        log.info("checking sensor " + sensor);
+        log.finer("checking sensor " + sensor);
 
         FirebaseDatabase.getInstance()
                         .getReference("sensor-types/" + sensor.getSensorClass()
@@ -34,14 +34,14 @@ public class RuleEngine {
                             @Override
                             public void onDataChange(DataSnapshot snapshot) {
                                 SensorType sensorType = snapshot.getValue(SensorType.class);
-                                log.info("Loaded sensor type " + sensorType);
+                                log.finer("Loaded sensor type " + sensorType);
                                 FirebaseDatabase.getInstance()
                                                 .getReference("sensor/" + sensor.getIdentifier() + "/rule")
                                                 .addListenerForSingleValueEvent(
                                                         new ValueEventListener() {
                                                             @Override
                                                             public void onDataChange(DataSnapshot snapshot) {
-                                                                log.info("rules loaded, started checking...");
+                                                                log.finer("rules loaded, started checking...");
                                                                 for (var userRules : snapshot.getChildren()) {
                                                                     for (var rule : userRules.getChildren()) {
                                                                         var parsedRule = rule.getValue(Rule.class);
@@ -73,7 +73,7 @@ public class RuleEngine {
 
     private void checkRule(Rule rule, SensorType sensorType, List<Integer> newValues) {
         boolean isTriggered = rule.isTriggered(newValues);
-        log.info("Rule " + rule + (isTriggered ? " IS" : " ISN'T") + " triggered");
+        log.finer("Rule " + rule + (isTriggered ? " IS" : " ISN'T") + " triggered");
         if (isTriggered) {
             messaging.sendMessage(rule, sensorType);
         }

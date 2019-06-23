@@ -162,7 +162,7 @@ public class SensorDetailsActivity extends SensorAwareActivity {
     }
 
     private void renderBooleanConfig(final Sensor currentSensor, SensorType sensorType, List<Integer> lastValues) {
-        int booleanValueIndex = sensorType.getBoolValueIndex();
+        final int booleanValueIndex = sensorType.getBoolValueIndex();
         if (booleanValueIndex != -1) {
             statusButton.setVisibility(View.VISIBLE);
             statusTxt.setVisibility(View.VISIBLE);
@@ -171,25 +171,12 @@ public class SensorDetailsActivity extends SensorAwareActivity {
                 Log.e("Sensor details", "Could not extract last boolean at index " + booleanValueIndex + " value from " + lastValues);
                 return;
             }
-            boolean currentValue = false;
-            switch (lastValues.get(booleanValueIndex)) {
-                case 0:
-                    currentValue = false;
-                    break;
-                case 1:
-                    currentValue = true;
-                    break;
-                default:
-                    Log.e("Sensor details", "Could not convert last value, should be 1 or 0, was " + lastValues.get(booleanValueIndex));
-                    break;
-            }
-
-            final boolean currentValueFinal = currentValue;
-            statusTxt.setText(currentValue ? "ON" : "OFF");
+            final int currentValue = lastValues.get(booleanValueIndex);
+            statusTxt.setText(currentValue == 1 ? "ON" : "OFF");
             statusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sensorUpdateRequest(currentSensor, !currentValueFinal, new DatabaseReference.CompletionListener() {
+                    sensorUpdateRequest(currentSensor, booleanValueIndex, currentValue == 1 ? 0 : 1, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
                             Toast.makeText(SensorDetailsActivity.this, "Request sent", Toast.LENGTH_LONG).show();

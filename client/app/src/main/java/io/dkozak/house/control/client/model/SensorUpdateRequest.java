@@ -5,17 +5,35 @@ import java.util.Objects;
 public class SensorUpdateRequest {
     private String user;
     private int sensorId;
-    private boolean newValue;
+    private int newValue;
+    private int index;
 
     public SensorUpdateRequest() {
     }
 
-    public SensorUpdateRequest(String user, int sensorId, boolean newValue) {
+
+    public SensorUpdateRequest(String user, int sensorId, int newValue, int index) {
         this.user = user;
         this.sensorId = sensorId;
         this.newValue = newValue;
+        this.index = index;
     }
 
+    public int getNewValue() {
+        return newValue;
+    }
+
+    public void setNewValue(int newValue) {
+        this.newValue = newValue;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 
     public String getUser() {
         return user;
@@ -33,14 +51,6 @@ public class SensorUpdateRequest {
         this.sensorId = sensorId;
     }
 
-    public boolean isNewValue() {
-        return newValue;
-    }
-
-    public void setNewValue(boolean newValue) {
-        this.newValue = newValue;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -48,12 +58,13 @@ public class SensorUpdateRequest {
         SensorUpdateRequest that = (SensorUpdateRequest) o;
         return sensorId == that.sensorId &&
                 newValue == that.newValue &&
+                index == that.index &&
                 Objects.equals(user, that.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, sensorId, newValue);
+        return Objects.hash(user, sensorId, newValue, index);
     }
 
     @Override
@@ -62,6 +73,7 @@ public class SensorUpdateRequest {
                 "user='" + user + '\'' +
                 ", sensorId=" + sensorId +
                 ", newValue=" + newValue +
+                ", index=" + index +
                 '}';
     }
 }

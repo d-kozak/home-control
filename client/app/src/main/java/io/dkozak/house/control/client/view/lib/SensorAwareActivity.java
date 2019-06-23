@@ -314,9 +314,9 @@ public abstract class SensorAwareActivity extends LoginAwareActivity {
         return "user/" + currentUser.getUid() + "/sensors";
     }
 
-    protected void sensorUpdateRequest(Sensor currentSensor, boolean newValue, DatabaseReference.CompletionListener callback) {
+    protected void sensorUpdateRequest(Sensor currentSensor, int index, int newValue, DatabaseReference.CompletionListener callback) {
         String user = FirebaseAuth.getInstance().getUid();
-        SensorUpdateRequest request = new SensorUpdateRequest(user, currentSensor.getSensorId(), newValue);
+        SensorUpdateRequest request = new SensorUpdateRequest(user, currentSensor.getSensorId(), newValue, index);
         FirebaseDatabase.getInstance().getReference("request")
                 .push()
                 .setValue(request, callback);
