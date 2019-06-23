@@ -70,7 +70,8 @@ and serializing sensor data.
 
 ### Client 
 The client app consists of 6 main activities. There also two helper activities for easier code sharing, SensorAwareActivity and LoginAwareActivity,
-from which most of the other activities inherit.
+from which most of the other activities inherit. LoginAwareActivity ensures that only logged in user can access the content. SensorAwareActivity provides hooks
+for listening to sensor and rule data changes from Firebase.
 ![alt text](./imgs/activities-class.png)
 
 When the app is opened, LoginActivity is loaded, which triggers authentication using Firebase. When it is done, the SensorListActivity is started.
