@@ -90,11 +90,11 @@ The goal of this assignment was to create an IOT solution, both client and the s
 The main requirements were the following.
 
 ### Server
-- [x] Access to a real-time database
+- [x] Access to a Firebase real-time database
 - [x] Functional paradigm
 - [ ] Logs using AOP
     * NOT implemented, because I could not find any working way how to integrate Java 12, Gradle 5, Lombok and AspectJ. Spring is doing it somehow, so it
-    should be possible, but none of the ways I tried was working. Therefore the logs are handled using Lombok's @Log.  
+    should be possible, but none of the ways I tried worked for me. Therefore the logs are handled using Lombok's @Log.  
 - [x] Register users using Firebase Auth
 - [x] Notifications using Firebase Cloud Messaging
 - [x] Logs visualizing server state
