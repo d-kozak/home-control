@@ -27,8 +27,9 @@ public class FCMMessaging {
                             public void onDataChange(DataSnapshot snapshot) {
                                 log.info("starting sending messages");
                                 for (var device : snapshot.getChildren()) {
-                                    log.info("sending message to " + device);
-                                    sendMessageToDevice(rule, sensorType, device.getKey());
+                                    String deviceId = device.getKey();
+                                    log.info("sending message to " + deviceId);
+                                    sendMessageToDevice(rule, sensorType, deviceId);
                                 }
                             }
 
