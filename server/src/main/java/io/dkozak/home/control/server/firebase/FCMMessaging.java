@@ -46,8 +46,7 @@ public class FCMMessaging {
                                  .getName() + " " + rule.getComparison() + " " + rule.getThreshold()
                     + " triggered";
             var message = Message.builder()
-                                 .putData("Title", "Event")
-                                 .putData("Sensor ID", rule.getSensorId() + "")
+                                 .putData("id", rule.getSensorId() + "")
                                  .putData("msg", text)
                                  .setToken(token)
                                  .build();
