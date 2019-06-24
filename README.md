@@ -35,7 +35,7 @@ The command to start the gateway is
 java  --enable-preview  -jar  gateway/build/libs/gateway.jar
 ```
 
-For easier startup, [run.sh][./run.sh] shell script was written, which starts both the gateway and the server.
+For easier startup, [run.sh](./run.sh) shell script was written, which starts both the gateway and the server.
 
 For editing the client, [Android Studio](https://developer.android.com/studio/?gclid=Cj0KCQjw9JzoBRDjARIsAGcdIDVKioluWo98udXZtLYEUFwdkUPb_eNCMVdCwZJFjLHwzXrjwyaDGioaAibbEALw_wcB)
 is recommended and for editing the backend, you are encouraged to use [IntelliJ IDEA](https://www.jetbrains.com/idea/specials/idea/ultimate.html?gclid=Cj0KCQjwo7foBRD8ARIsAHTy2wnI0oTQIOPsaqz6WNrpCz_LZDErrCRMYsIeAC3FQF1t699ipOkOpcwaAui9EALw_wcB),
