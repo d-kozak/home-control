@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.dkozak.home.control.server.firebase.DatabaseUtils.childAdded;
-import static io.dkozak.home.control.server.firebase.DatabaseUtils.loadAndUpdate;
 import static io.dkozak.home.control.utils.Streams.streamOf;
 
 @Log
@@ -60,17 +59,25 @@ public class FirebaseConnector {
 
     public <T> void updateList(Set<T> newData, Class<T> clazz, String databasePath) {
         DatabaseReference ref = database.getReference(databasePath);
-        loadAndUpdate(ref, snapshot -> {
-            var oldData = streamOf(snapshot.getChildren())
-                    .map(item -> item.getValue(clazz))
-                    .collect(Collectors.toSet());
-            log.info("Old elements are " + oldData);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                var oldData = streamOf(snapshot.getChildren())
+                        .map(item -> item.getValue(clazz))
+                        .collect(Collectors.toSet());
+                log.info("Old elements are " + oldData);
 
-            var allData = new TreeSet<>(oldData);
-            allData.addAll(newData);
+                var allData = new TreeSet<>(oldData);
+                allData.addAll(newData);
 
-            log.info("Persisting new elements: " + newData);
-            ref.setValue(new ArrayList<>(allData), logResultListener);
+                log.info("Persisting new elements: " + newData);
+                ref.setValue(new ArrayList<>(allData), logResultListener);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+
+            }
         });
     }
 

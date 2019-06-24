@@ -1,8 +1,9 @@
 package io.dkozak.home.control.server.firebase;
 
-import com.google.firebase.database.*;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class DatabaseUtils {
@@ -36,23 +37,4 @@ public class DatabaseUtils {
         };
     }
 
-
-    public static void loadAndUpdate(DatabaseReference databaseRef, Consumer<DataSnapshot> block) {
-        var listenerRef = new AtomicReference<ValueEventListener>();
-        listenerRef.set(databaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (listenerRef.get() != null) {
-                    databaseRef.removeEventListener(listenerRef.get());
-                    listenerRef.set(null);
-                    block.accept(snapshot);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-
-            }
-        }));
-    }
 }
